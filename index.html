@@ -2,184 +2,419 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NeTelegram - Dev Mode</title>
-    
-    <link rel="icon" type="image/png" href="favicon.png">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Crew — классный чат</title>
     <style>
-        :root {
-            --bg: #0f0f0f;
-            --surface: #1a1a1a;
-            --accent: #ff3b30; 
-            --text: #ffffff;
-            --text-secondary: #8e8e93;
-            --glass: rgba(26, 26, 26, 0.9);
-            --border: rgba(255, 255, 255, 0.1);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-        /* --- ШАПКА --- */
-        header { padding: 50px 20px 15px; background: var(--glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; z-index: 100; }
-        .header-brand { display: flex; align-items: center; gap: 10px; }
-        .logo-mini { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); }
+        /* Шапка */
+        .header {
+            background: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e9ecef;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #dc2626;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(220,38,38,0.2);
+        }
+        .avatar svg {
+            width: 24px;
+            height: 24px;
+        }
+        .app-name {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .badge {
+            margin-left: auto;
+            background: #eef2ff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #2563eb;
+        }
 
-        /* --- КОНТЕНТ --- */
-        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        .tab-content { display: none; flex-direction: column; height: 100%; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: flex; }
+        /* Вкладки */
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 0 16px;
+            gap: 24px;
+        }
+        .tab {
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            color: #dc2626;
+            border-bottom-color: #dc2626;
+        }
 
-        /* --- ЧАТ --- */
-        #chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { max-width: 80%; padding: 12px 16px; border-radius: 20px; position: relative; font-size: 15px; line-height: 1.4; }
-        .msg-in { background: var(--surface); align-self: flex-start; border-bottom-left-radius: 4px; }
-        .msg-out { background: #007aff; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .msg-author { font-size: 11px; font-weight: bold; margin-bottom: 4px; display: block; color: var(--accent); }
-        .msg-time { font-size: 10px; opacity: 0.5; display: block; text-align: right; margin-top: 4px; }
-        .btn-del { position: absolute; top: -8px; right: -8px; background: var(--accent); border: none; border-radius: 50%; width: 22px; height: 22px; color: white; cursor: pointer; display: none; }
-        .is-admin .btn-del { display: block; }
+        /* Контент вкладок */
+        .tab-content {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .tab-content.active {
+            display: flex;
+        }
 
-        /* ВВОД */
-        .input-area { padding: 15px; background: var(--glass); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; gap: 10px; padding-bottom: 35px; }
-        #msg-input { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 12px 18px; border-radius: 25px; color: #fff; outline: none; }
+        /* Чат */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .message.my {
+            align-self: flex-end;
+            background: #dc2626;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.other {
+            align-self: flex-start;
+            background: white;
+            color: #1e293b;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .message-name {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+        .message-time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.6;
+            text-align: right;
+        }
+        .chat-input-area {
+            background: white;
+            padding: 12px 16px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #e9ecef;
+            align-items: center;
+        }
+        .chat-input {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 15px;
+            outline: none;
+            background: #f8fafc;
+        }
+        .chat-input:focus {
+            border-color: #dc2626;
+            background: white;
+        }
+        .send-btn {
+            background: #dc2626;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: 0.2s;
+        }
+        .send-btn:active {
+            transform: scale(0.96);
+            background: #b91c1c;
+        }
 
-        /* --- ТАББАР --- */
-        .tabbar { background: var(--glass); border-top: 1px solid var(--border); display: flex; padding: 10px 0 30px; }
-        .tab { flex: 1; text-align: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: 0.2s; }
-        .tab.active { color: var(--accent); transform: translateY(-2px); }
-        .tab-icon { font-size: 20px; margin-bottom: 4px; display: block; }
+        /* Дневник */
+        .diary-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+        }
+        .info-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .diary-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .diary-btn:active {
+            transform: scale(0.98);
+            background: #b91c1c;
+        }
+        .iframe-wrapper {
+            flex: 1;
+            border-radius: 28px;
+            overflow: hidden;
+            background: white;
+            display: none;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
-        /* --- ДНЕВНИК --- */
-        .diary-frame { width: 100%; height: 100%; border: none; background: #fff; }
-
-        /* --- АДМИНКА --- */
-        .admin-page { padding: 20px; }
-        .status-card { background: var(--surface); padding: 15px; border-radius: 15px; border-left: 4px solid var(--accent); }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Подсказка для iPhone */
+        .pwa-hint {
+            background: #f1f5f9;
+            margin: 12px;
+            padding: 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #334155;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
-<body class="is-admin">
+<body>
 
-    <header>
-        <div class="header-brand">
-            <div class="logo-mini"></div>
-            <b id="header-title">NeTelegram <small style="opacity:0.5; font-weight:normal;">dev</small></b>
+<div class="header">
+    <div class="avatar">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 2L11 13" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="4" y1="20" x2="9" y2="15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="20" y1="4" x2="15" y2="9" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5" stroke-dasharray="2 2"/>
+        </svg>
+    </div>
+    <span class="app-name">Crew</span>
+    <div class="badge">только свои</div>
+</div>
+
+<div class="tabs">
+    <div class="tab active" data-tab="chat">💬 Чат</div>
+    <div class="tab" data-tab="diary">📓 Дневник</div>
+</div>
+
+<!-- Вкладка Чата -->
+<div id="chat-tab" class="tab-content active">
+    <div class="chat-messages" id="chatMessages">
+        <div class="message other">
+            <div class="message-name">Аня</div>
+            Привет! Как у всех дела?
+            <div class="message-time">12:34</div>
         </div>
-        <div style="font-size:12px; background: rgba(255,59,48,0.2); color:var(--accent); padding:4px 10px; border-radius:10px;">Admin Mode</div>
-    </header>
-
-    <main>
-        <div id="tab-chat" class="tab-content active">
-            <div id="chat-messages"></div>
-            <div class="input-area">
-                <input type="text" id="msg-input" placeholder="Сообщение...">
-                <button onclick="sendMessage()" style="background:var(--accent); border:none; width:40px; height:40px; border-radius:50%; color:white; font-size:18px; cursor:pointer;">↑</button>
-            </div>
+        <div class="message my">
+            <div class="message-name">Я</div>
+            Всё отлично! Домашку по математике сделали?
+            <div class="message-time">12:35</div>
         </div>
-
-        <div id="tab-diary" class="tab-content">
-            <iframe src="https://school.mosreg.ru/" class="diary-frame"></iframe>
+        <div class="message other">
+            <div class="message-name">Макс</div>
+            Да, всё готово 🔥
+            <div class="message-time">12:36</div>
         </div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" class="chat-input" placeholder="Сообщение..." id="messageInput">
+        <button class="send-btn" id="sendBtn">➤</button>
+    </div>
+    <div id="pwaHint" class="pwa-hint hidden">
+        📱 Добавьте сайт на главный экран, чтобы получать уведомления!
+    </div>
+</div>
 
-        <div id="tab-admin" class="tab-content">
-            <div class="admin-page">
-                <h3>Управление приложением</h3>
-                <p style="color:var(--text-secondary); margin-bottom:20px;">Регистрация отключена (режим отладки)</p>
-                
-                <div class="status-card">
-                    <b>Статус системы:</b><br>
-                    <small>Подключение к Firebase: OK</small><br>
-                    <small>Режим: Тестовый (Без логина)</small>
-                </div>
-            </div>
+<!-- Вкладка Дневника -->
+<div id="diary-tab" class="tab-content">
+    <div class="diary-container">
+        <div class="info-card">
+            📖 <strong>Электронный дневник</strong><br>
+            Чтобы посмотреть оценки и домашку — нажмите кнопку ниже
         </div>
-    </main>
+        <button class="diary-btn" id="openDiaryBtn">
+            🌐 Открыть дневник
+        </button>
+        <div class="iframe-wrapper" id="iframeWrapper">
+            <iframe id="diaryIframe" src="about:blank"></iframe>
+        </div>
+    </div>
+</div>
 
-    <nav class="tabbar">
-        <div class="tab active" onclick="showTab('chat')"><span class="tab-icon">💬</span>Чат</div>
-        <div class="tab" onclick="showTab('diary')"><span class="tab-icon">📔</span>Дневник</div>
-        <div class="tab" onclick="showTab('admin')"><span class="tab-icon">⚙️</span>Админ</div>
-    </nav>
+<script>
+    // ---------- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ----------
+    const tabs = document.querySelectorAll('.tab');
+    const chatTab = document.getElementById('chat-tab');
+    const diaryTab = document.getElementById('diary-tab');
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabId = tab.getAttribute('data-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            if (tabId === 'chat') {
+                chatTab.classList.add('active');
+                diaryTab.classList.remove('active');
+            } else {
+                chatTab.classList.remove('active');
+                diaryTab.classList.add('active');
+            }
+        });
+    });
 
-        // КОНФИГУРАЦИЯ FIREBASE (Замени на свои данные)
-        const firebaseConfig = {
-            apiKey: "ТВОЙ_API_KEY",
-            databaseURL: "https://ТВОЙ_PROJECT.firebaseio.com",
-            projectId: "ТВОЙ_PROJECT",
-            appId: "ТВОЙ_APP_ID"
-        };
+    // ---------- ЧАТ (демо, просто добавление сообщений) ----------
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // ФЕЙКОВЫЙ ТЕСТОВЫЙ ПОЛЬЗОВАТЕЛЬ (Чтобы не логиниться)
-        const currentUser = {
-            name: "Админ (Тест)",
-            phone: "+79001112233" // Твой номер
-        };
-
-        // НАВИГАЦИЯ
-        window.showTab = (name) => {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + name).classList.add('active');
-            event.currentTarget.classList.add('active');
-        };
-
-        // ЧАТ: ЗАГРУЗКА
-        function loadMessages() {
-            const chatBox = document.getElementById('chat-messages');
-            onValue(ref(db, 'messages'), (snapshot) => {
-                chatBox.innerHTML = '';
-                snapshot.forEach((child) => {
-                    const m = child.val();
-                    const isMe = m.phone === currentUser.phone;
-                    
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = `msg ${isMe ? 'msg-out' : 'msg-in'}`;
-                    msgDiv.innerHTML = `
-                        ${!isMe ? `<span class="msg-author">${m.name}</span>` : ''}
-                        <p>${m.text}</p>
-                        <span class="msg-time">${m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...'}</span>
-                        <button class="btn-del" onclick="deleteMessage('${child.key}')">×</button>
-                    `;
-                    chatBox.appendChild(msgDiv);
-                });
-                chatBox.scrollTop = chatBox.scrollHeight;
-            });
+    function addMessage(text, isMy = false, name = '') {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isMy ? 'my' : 'other'}`;
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        if (!isMy && name) {
+            const nameSpan = document.createElement('div');
+            nameSpan.className = 'message-name';
+            nameSpan.innerText = name;
+            messageDiv.appendChild(nameSpan);
         }
+        const textSpan = document.createElement('div');
+        textSpan.innerText = text;
+        messageDiv.appendChild(textSpan);
+        const timeSpan = document.createElement('div');
+        timeSpan.className = 'message-time';
+        timeSpan.innerText = timeStr;
+        messageDiv.appendChild(timeSpan);
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
 
-        // ЧАТ: ОТПРАВКА
-        window.sendMessage = () => {
-            const input = document.getElementById('msg-input');
-            if (!input.value.trim()) return;
+    sendBtn.addEventListener('click', () => {
+        const text = messageInput.value.trim();
+        if (text === '') return;
+        addMessage(text, true);
+        messageInput.value = '';
+        // имитация ответа через 1 секунду (для демонстрации)
+        setTimeout(() => {
+            addMessage('🔥 Круто!', false, 'Бот');
+        }, 1000);
+    });
 
-            push(ref(db, 'messages'), {
-                name: currentUser.name,
-                phone: currentUser.phone,
-                text: input.value,
-                timestamp: serverTimestamp()
-            });
-            input.value = '';
-        };
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendBtn.click();
+    });
 
-        // УДАЛЕНИЕ (Для админа)
-        window.deleteMessage = (id) => {
-            if(confirm("Удалить сообщение?")) remove(ref(db, 'messages/' + id));
-        };
+    // ---------- ДНЕВНИК: попытка встроить iframe, если не получится — показываем кнопку ----------
+    const openDiaryBtn = document.getElementById('openDiaryBtn');
+    const iframeWrapper = document.getElementById('iframeWrapper');
+    const diaryIframe = document.getElementById('diaryIframe');
 
-        // Следим за нажатием Enter
-        document.getElementById('msg-input').onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+    // Пробуем открыть в iframe (это просто демо, реально mosreg не даст, но для тренировки кода)
+    function tryEmbedDiary() {
+        const testUrl = 'https://school.mosreg.ru/'; // замени на свой реальный дневник, если надо
+        diaryIframe.src = testUrl;
+        iframeWrapper.style.display = 'block';
+        openDiaryBtn.style.display = 'none';
+        // Таймаут: если через 5 секунд iframe не загрузился или заблокирован — вернём кнопку
+        setTimeout(() => {
+            try {
+                // Проверяем, загрузилось ли содержимое (доступ к iframe ограничен CORS, но ошибку поймать можно)
+                const iframeDoc = diaryIframe.contentWindow.document;
+                if (!iframeDoc || iframeDoc.location.href === 'about:blank') {
+                    throw new Error('Блокировка');
+                }
+            } catch(e) {
+                // Скорее всего блокировка X-Frame-Options или CORS
+                iframeWrapper.style.display = 'none';
+                openDiaryBtn.style.display = 'flex';
+                alert('Школьный дневник нельзя встроить из-за защиты сайта.\nБудет открываться в новой вкладке.');
+            }
+        }, 3000);
+    }
 
-        // ЗАПУСК
-        loadMessages();
-    </script>
+    openDiaryBtn.addEventListener('click', () => {
+        // Открываем дневник в новой вкладке (надёжный способ)
+        window.open('https://school.mosreg.ru/', '_blank');
+    });
+
+    // Показываем подсказку для PWA, если пользователь зашёл с iPhone
+    const pwaHint = document.getElementById('pwaHint');
+    const isIphone = /iPhone/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isIphone && !isStandalone) {
+        pwaHint.classList.remove('hidden');
+    }
+
+    // Добавим немного стилей для скролла
+    console.log('Приложение Crew — интерфейс готов. Теперь можно подключать Firebase и регистрацию!');
+</script>
 </body>
 </html>
