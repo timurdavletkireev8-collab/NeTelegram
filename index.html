@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Классное приложение</title>
+    <style>
+        /* Базовые настройки и сброс стилей */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Убираем подсветку при клике на телефонах */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Занимает 100% высоты экрана */
+            overflow: hidden;
+        }
+
+        /* Шапка */
+        header {
+            background-color: #ffffff;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        /* Контейнеры вкладок */
+        .tab-content {
+            display: none; /* Скрыты по умолчанию */
+            flex: 1;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: flex; /* Показываем только активную вкладку */
+        }
+
+        /* --- Стили для вкладки ЧАТ --- */
+        .chat-area {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .message.received {
+            background-color: #ffffff;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent {
+            background-color: #3390ec;
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px 15px;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .input-area input:focus {
+            border-color: #3390ec;
+        }
+
+        .input-area button {
+            background-color: #3390ec;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 15px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* --- Стили для вкладки ДНЕВНИК --- */
+        .diary-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .diary-area p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .btn-large {
+            background-color: #3390ec;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(51, 144, 236, 0.2);
+        }
+
+        /* --- Нижняя навигация --- */
+        .bottom-nav {
+            display: flex;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            padding-bottom: env(safe-area-inset-bottom); /* Для современных iPhone */
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 15px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #888;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-btn.active {
+            color: #3390ec;
+        }
+
+        /* Простые иконки на CSS (кружочки для визуала) */
+        .icon {
+            width: 24px;
+            height: 24px;
+            background-color: currentColor;
+            border-radius: 5px;
+            opacity: 0.8;
+        }
+        .nav-btn:first-child .icon { border-radius: 50%; } /* Иконка чата круглая */
+    </style>
+</head>
+<body>
+
+    <div id="tab-chat" class="tab-content active">
+        <header>Классный чат</header>
+        
+        <div class="chat-area">
+            <div class="message received">Привет!</div>
+            <div class="message sent">Как дела?</div>
+            <div class="message received">Всё отлично, готовлюсь к урокам 📚</div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" placeholder="Сообщение...">
+            <button>Отправить</button>
+        </div>
+    </div>
+
+    <div id="tab-diary" class="tab-content">
+        <header>Дневник</header>
+        
+        <div class="diary-area">
+            <p>Здесь будет расписание и оценки</p>
+            <button class="btn-large">Открыть дневник</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="openTab('chat', this)">
+            <div class="icon"></div>
+            Чат
+        </button>
+        <button class="nav-btn" onclick="openTab('diary', this)">
+            <div class="icon"></div>
+            Дневник
+        </button>
+    </nav>
+
+    <script>
+        function openTab(tabName, btnElement) {
+            // 1. Скрываем все вкладки
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // 2. Убираем активный класс у всех кнопок навигации
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // 3. Показываем нужную вкладку
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // 4. Делаем нажатую кнопку активной (меняем цвет)
+            btnElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
