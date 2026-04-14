@@ -3,60 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class App</title>
+    <title>Class App | Auth</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
-        .auth-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        input { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; }
+        body { background: #000; color: white; font-family: 'Inter', sans-serif; }
+        .auth-card { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); transform: translateY(0); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        input { background: #020617 !important; border: 1px solid #1e293b !important; color: white !important; transition: 0.2s; }
+        input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
         .hidden { display: none; }
-        .custom-file-upload { border: 1px dashed #334155; cursor: pointer; transition: 0.3s; }
-        .custom-file-upload:hover { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+        .btn-primary { background: white; color: black; font-weight: 700; transition: 0.2s; }
+        .btn-primary:hover { background: #e2e8f0; transform: scale(1.02); }
+        .btn-primary:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <div id="auth-container" class="auth-card p-8 rounded-3xl w-full max-w-sm shadow-2xl transition-all">
-        <div class="text-center mb-6">
-            <h1 id="auth-title" class="text-2xl font-bold">Регистрация</h1>
-            <p id="auth-subtitle" class="text-slate-500 text-sm mt-1">Мессенджер нашего класса</p>
+    <div id="auth-container" class="auth-card p-8 rounded-[2.5rem] w-full max-w-[380px] shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 id="auth-title" class="text-3xl font-bold tracking-tight">Регистрация</h1>
+            <p id="auth-subtitle" class="text-slate-500 text-sm mt-2">Мессенджер нашего класса</p>
         </div>
 
         <form id="auth-form" class="space-y-4">
             <div id="reg-fields" class="space-y-4">
-                <div>
-                    <input type="text" id="node-nick" class="w-full p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ваш никнейм">
-                </div>
-                <div class="relative">
-                    <label class="custom-file-upload flex items-center justify-center p-3 rounded-xl text-sm text-slate-400">
-                        <input type="file" id="node-photo" class="hidden" accept="image/*">
-                        <span id="file-name">Выбрать фото профиля</span>
-                    </label>
-                </div>
+                <input type="text" id="node-nick" class="w-full p-4 rounded-2xl outline-none" placeholder="Никнейм">
+                <label class="flex items-center justify-center p-4 rounded-2xl border-2 border-dashed border-slate-700 text-sm text-slate-400 cursor-pointer hover:border-blue-500 transition-all">
+                    <input type="file" id="node-photo" class="hidden" accept="image/*">
+                    <span id="file-name">Выбрать фото</span>
+                </label>
             </div>
 
-            <div>
-                <input type="tel" id="node-phone" class="w-full p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Номер телефона" required>
-            </div>
-            <div>
-                <input type="password" id="node-pass" class="w-full p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Пароль" required>
-            </div>
+            <input type="tel" id="node-phone" class="w-full p-4 rounded-2xl outline-none" placeholder="Номер телефона" required>
+            <input type="password" id="node-pass" class="w-full p-4 rounded-2xl outline-none" placeholder="Пароль" required>
 
-            <button type="submit" id="submit-btn" class="w-full bg-white text-black font-bold py-3 rounded-xl mt-2 hover:bg-slate-200 transition-all active:scale-95">
+            <button type="submit" id="submit-btn" class="w-full btn-primary py-4 rounded-2xl mt-4">
                 Зарегистрироваться
             </button>
         </form>
 
-        <div class="mt-6 text-center text-sm text-slate-400">
-            <span id="toggle-text">Уже зарегистрированы?</span>
-            <button id="toggle-auth" class="text-blue-500 ml-1 font-medium">Войти</button>
+        <div class="mt-8 text-center text-sm text-slate-400">
+            <span id="toggle-text">Уже в теме?</span>
+            <button id="toggle-auth" class="text-blue-500 ml-1 font-semibold hover:text-blue-400 transition">Войти</button>
         </div>
     </div>
 
-    <div id="app-screen" class="hidden fixed inset-0 bg-black flex items-center justify-center">
-        <div class="text-center">
-            <div class="animate-pulse text-slate-500">Загрузка интерфейса...</div>
-        </div>
+    <div id="app-screen" class="hidden fixed inset-0 bg-black flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-slate-500 font-medium">Входим в систему...</p>
     </div>
 
     <script type="module">
@@ -78,64 +73,98 @@
         let isLoginMode = false;
         let base64Photo = "";
 
-        // Обработка выбора файла (конвертация в текст)
-        document.getElementById('node-photo').onchange = function(e) {
+        // Проверка сессии при загрузке
+        if (localStorage.getItem('userPhone')) {
+            launchApp();
+        }
+
+        // Конвертация фото
+        document.getElementById('node-photo').onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
-                document.getElementById('file-name').innerText = file.name;
+                if (file.size > 500000) { // Лимит 0.5MB для Base64 в Realtime DB
+                    Swal.fire('Ошибка', 'Фото слишком тяжелое', 'error');
+                    return;
+                }
+                document.getElementById('file-name').innerText = "Фото выбрано ✓";
                 const reader = new FileReader();
                 reader.onloadend = () => { base64Photo = reader.result; };
                 reader.readAsDataURL(file);
             }
         };
 
-        // Переключение Вход / Регистрация
+        // Смена режима
         document.getElementById('toggle-auth').onclick = () => {
             isLoginMode = !isLoginMode;
             document.getElementById('auth-title').innerText = isLoginMode ? "С возвращением" : "Регистрация";
             document.getElementById('reg-fields').classList.toggle('hidden');
             document.getElementById('submit-btn').innerText = isLoginMode ? "Войти" : "Зарегистрироваться";
-            document.getElementById('toggle-text').innerText = isLoginMode ? "Нет аккаунта?" : "Уже зарегистрированы?";
-            document.getElementById('toggle-auth').innerText = isLoginMode ? "Создать" : "Войти";
+            document.getElementById('toggle-auth').innerText = isLoginMode ? "Создать аккаунт" : "Войти";
         };
 
-        // Логика формы
+        // Обработка формы
         document.getElementById('auth-form').onsubmit = async (e) => {
             e.preventDefault();
             const phone = document.getElementById('node-phone').value.trim();
             const pass = document.getElementById('node-pass').value.trim();
             const nick = document.getElementById('node-nick').value.trim();
 
-            if (isLoginMode) {
-                // ПРОВЕРКА ПРИ ВХОДЕ
-                const snapshot = await get(child(ref(db), `users/${phone}`));
-                if (snapshot.exists()) {
-                    if (snapshot.val().password === pass) {
-                        launchApp();
+            Swal.showLoading();
+
+            try {
+                const userRef = child(ref(db), `users/${phone}`);
+                const snapshot = await get(userRef);
+
+                if (isLoginMode) {
+                    if (snapshot.exists() && snapshot.val().password === pass) {
+                        saveSession(phone, snapshot.val());
                     } else {
-                        alert("Неверный пароль!");
+                        Swal.fire('Ошибка', 'Неверный номер или пароль', 'error');
                     }
                 } else {
-                    alert("Пользователь с таким номером не найден!");
+                    if (snapshot.exists()) {
+                        Swal.fire('Упс!', 'Этот номер уже зарегистрирован', 'warning');
+                    } else {
+                        if (!nick || !base64Photo) {
+                            Swal.fire('Внимание', 'Заполните ник и выберите фото!', 'info');
+                            return;
+                        }
+                        const userData = {
+                            username: nick,
+                            password: pass,
+                            photo: base64Photo,
+                            role: (phone === "+79225941382" ? "admin" : "user")
+                        };
+                        await set(ref(db, 'users/' + phone), userData);
+                        saveSession(phone, userData);
+                    }
                 }
-            } else {
-                // РЕГИСТРАЦИЯ
-                if (!nick || !base64Photo) { alert("Заполните ник и выберите фото!"); return; }
-                
-                await set(ref(db, 'users/' + phone), {
-                    username: nick,
-                    password: pass,
-                    photo: base64Photo,
-                    role: (phone === "+79225941382" ? "admin" : "user")
-                });
-                alert("Успешная регистрация!");
-                launchApp();
+            } catch (err) {
+                Swal.fire('Ошибка связи', 'Проверь интернет или правила БД', 'error');
             }
         };
 
+        function saveSession(phone, data) {
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('userName', data.username);
+            localStorage.setItem('userRole', data.role);
+            
+            Swal.fire({
+                title: `Привет, ${data.username}!`,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+                background: '#0f172a',
+                color: '#fff'
+            }).then(() => {
+                launchApp();
+            });
+        }
+
         function launchApp() {
-            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
+            document.body.style.background = "#000";
         }
     </script>
 </body>
