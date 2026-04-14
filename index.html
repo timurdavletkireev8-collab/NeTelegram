@@ -21,8 +21,8 @@
             --text-main: #ffffff;
             --text-secondary: #8e8e93;
             --border-color: rgba(255, 255, 255, 0.08);
-            --glass-bg: rgba(21, 21, 21, 0.8);
-            --glass-blur: blur(20px);
+            --glass-bg: rgba(21, 21, 21, 0.85);
+            --glass-blur: blur(25px);
         }
 
         * {
@@ -41,15 +41,30 @@
             overflow: hidden;
         }
 
-        /* КОНТЕЙНЕР АДАПТИВНОСТИ */
+        /* --- ЛОГОТИП И НАЗВАНИЕ --- */
+        .brand-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(42, 133, 255, 0.3);
+        }
+
+        /* --- ГЛАВНЫЙ КОНТЕЙНЕР --- */
         .app-container {
             display: flex;
             width: 100%;
             height: 100%;
-            flex-direction: column; /* Мобилки: вертикально */
+            flex-direction: column;
         }
 
-        /* БОКОВАЯ / НИЖНЯЯ ПАНЕЛЬ */
+        /* --- НАВИГАЦИЯ --- */
         .nav-bar {
             background-color: var(--glass-bg);
             backdrop-filter: var(--glass-blur);
@@ -62,7 +77,7 @@
         }
 
         .nav-brand {
-            display: none; /* Скрыто на мобильных */
+            display: none; /* Скрыто на мобилках */
             font-size: 24px;
             font-weight: 800;
             background: var(--accent-gradient);
@@ -83,7 +98,7 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             width: 100%;
         }
 
@@ -97,7 +112,7 @@
             fill: currentColor;
         }
 
-        /* ОСНОВНОЙ КОНТЕНТ */
+        /* --- КОНТЕНТ --- */
         .main-content {
             flex: 1;
             display: flex;
@@ -106,7 +121,7 @@
             position: relative;
         }
 
-        /* ШАПКА */
+        /* --- ШАПКА --- */
         .header {
             background-color: var(--glass-bg);
             backdrop-filter: var(--glass-blur);
@@ -122,7 +137,6 @@
         .header-title {
             font-size: 19px;
             font-weight: 700;
-            letter-spacing: -0.5px;
         }
 
         .header-brand-mobile {
@@ -133,7 +147,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* ВКЛАДКИ */
+        /* --- ВКЛАДКИ --- */
         .tab-content {
             display: none;
             flex: 1;
@@ -143,15 +157,15 @@
 
         .tab-content.active {
             display: flex;
-            animation: slideUp 0.3s ease-out;
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* СПИСОК ЧАТОВ */
+        /* --- ЧАТЫ --- */
         .chat-list {
             padding: 10px;
         }
@@ -161,7 +175,7 @@
             align-items: center;
             padding: 14px;
             background-color: var(--surface-color);
-            border-radius: 18px;
+            border-radius: 20px;
             margin-bottom: 8px;
             cursor: pointer;
             transition: 0.2s;
@@ -174,8 +188,8 @@
         }
 
         .chat-avatar {
-            width: 54px;
-            height: 54px;
+            width: 52px;
+            height: 52px;
             border-radius: 16px;
             background: var(--accent-gradient);
             display: flex;
@@ -189,6 +203,7 @@
 
         .chat-info {
             flex: 1;
+            overflow: hidden;
         }
 
         .chat-name {
@@ -203,11 +218,10 @@
         .chat-last-msg {
             font-size: 14px;
             color: var(--text-secondary);
-            display: block;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 200px;
+            display: block;
         }
 
         .pin-badge {
@@ -215,12 +229,33 @@
             font-size: 12px;
         }
 
-        /* ДНЕВНИК */
-        .diary-section {
+        /* --- КНОПКА ДОБАВИТЬ --- */
+        .fab {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(42, 133, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .fab:active { transform: scale(0.9); }
+
+        /* --- ДНЕВНИК --- */
+        .diary-container {
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
             align-items: center;
             justify-content: center;
             height: 100%;
@@ -229,47 +264,28 @@
         .diary-card {
             background: var(--surface-color);
             padding: 30px;
-            border-radius: 24px;
+            border-radius: 28px;
             text-align: center;
             border: 1px solid var(--border-color);
             width: 100%;
             max-width: 400px;
         }
 
-        .btn-main {
+        .btn-premium {
             background: var(--accent-gradient);
             color: white;
             border: none;
             padding: 16px;
-            border-radius: 16px;
+            border-radius: 18px;
             font-size: 16px;
             font-weight: 700;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 25px;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(42, 133, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(42, 133, 255, 0.3);
         }
 
-        /* КНОПКА СОЗДАТЬ ЧАТ */
-        .add-chat-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 20px;
-            background: var(--accent-gradient);
-            border: none;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-            box-shadow: 0 10px 25px rgba(42, 133, 255, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* ДЕСКТОП ВЕРСИЯ (ПК) */
+        /* --- ДЕСКТОП (ПК) --- */
         @media (min-width: 768px) {
             .app-container {
                 flex-direction: row;
@@ -277,12 +293,12 @@
 
             .nav-bar {
                 flex-direction: column;
-                width: 280px;
+                width: 300px;
                 height: 100%;
                 justify-content: flex-start;
                 border-top: none;
                 border-right: 1px solid var(--border-color);
-                padding: 40px 15px;
+                padding: 40px 20px;
             }
 
             .nav-brand {
@@ -292,10 +308,11 @@
             .nav-btn {
                 flex-direction: row;
                 padding: 16px 20px;
-                border-radius: 14px;
+                border-radius: 16px;
                 font-size: 16px;
                 gap: 15px;
-                margin-bottom: 8px;
+                margin-bottom: 10px;
+                justify-content: flex-start;
             }
 
             .nav-btn.active {
@@ -307,7 +324,7 @@
             }
 
             .chat-list {
-                max-width: 600px;
+                max-width: 700px;
                 margin: 0 auto;
                 width: 100%;
             }
@@ -319,15 +336,18 @@
     <div class="app-container">
         
         <nav class="nav-bar">
-            <div class="nav-brand">NeTelegram</div>
+            <div class="nav-brand brand-wrapper">
+                <img src="favicon.png" alt="Logo" class="brand-logo">
+                <span>NeTelegram</span>
+            </div>
             
             <button class="nav-btn active" onclick="switchTab('chats', 'Чаты', this)">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22H17V20H12C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12V13.43C20 14.22 19.29 15 18.5 15C17.71 15 17 14.22 17 13.43V12C17 9.24 14.76 7 12 7C9.24 7 7 9.24 7 12C7 14.76 9.24 17 12 17C13.38 17 14.64 16.44 15.54 15.53C16.19 16.42 17.27 17 18.5 17C20.43 17 22 15.43 22 13.43V12C22 6.48 17.52 2 12 2ZM12 15C10.34 15 9 13.66 9 12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12C15 13.66 13.66 15 12 15Z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"/></svg>
                 Чаты
             </button>
 
             <button class="nav-btn" onclick="switchTab('diary', 'Дневник', this)">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H14V17H7V15Z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM7 7H17V9H7V7Z"/></svg>
                 Дневник
             </button>
         </nav>
@@ -336,7 +356,11 @@
             
             <header class="header">
                 <div class="header-title" id="page-name">Чаты</div>
-                <div class="header-brand-mobile">NeTelegram</div>
+                
+                <div class="header-brand-mobile brand-wrapper">
+                    <img src="favicon.png" alt="Logo" class="brand-logo">
+                    <span>NeTelegram</span>
+                </div>
             </header>
 
             <div id="tab-chats" class="tab-content active">
@@ -349,19 +373,20 @@
                         </div>
                     </div>
 
-                    <div style="text-align: center; color: var(--text-secondary); margin-top: 50px; font-size: 14px; opacity: 0.5;">
-                        Новые чаты появятся здесь
+                    <div style="text-align: center; color: var(--text-secondary); margin-top: 60px; font-size: 14px; opacity: 0.6;">
+                        Новые чаты появятся здесь автоматически
                     </div>
                 </div>
-                <button class="add-chat-btn">+</button>
+                
+                <button class="fab">+</button>
             </div>
 
             <div id="tab-diary" class="tab-content">
-                <div class="diary-section">
+                <div class="diary-container">
                     <div class="diary-card">
-                        <h2>Дневник</h2>
-                        <p style="color: var(--text-secondary); margin-top: 10px;">Расписание, оценки и домашние задания в одном месте.</p>
-                        <button class="btn-main">Открыть дневник</button>
+                        <h2>Электронный дневник</h2>
+                        <p style="color: var(--text-secondary); margin-top: 12px;">Здесь будет твоё расписание и успеваемость.</p>
+                        <button class="btn-premium">Войти в дневник</button>
                     </div>
                 </div>
             </div>
@@ -371,16 +396,16 @@
 
     <script>
         function switchTab(id, name, btn) {
-            // Скрыть все вкладки
+            // Скрываем все вкладки
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            // Деактивировать кнопки
+            // Деактивируем все кнопки
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
-            // Активировать нужную
+            // Активируем нужную вкладку и кнопку
             document.getElementById('tab-' + id).classList.add('active');
             btn.classList.add('active');
             
-            // Сменить заголовок
+            // Обновляем заголовок в шапке
             document.getElementById('page-name').innerText = name;
         }
     </script>
