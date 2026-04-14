@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NeTelegram Premium</title>
+    <title>NeTelegram</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
@@ -14,393 +15,416 @@
             font-family: 'Plus Jakarta Sans', sans-serif; 
             height: 100dvh; overflow: hidden; margin: 0; 
         }
-
-        /* Эффект матового стекла (Glassmorphism) */
-        .glass { 
-            background: rgba(10, 10, 10, 0.8); 
-            backdrop-filter: blur(25px) saturate(180%);
+        
+        .glass-header { 
+            background: rgba(10, 10, 10, 0.75); 
+            backdrop-filter: blur(20px) saturate(180%);
             border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-top: calc(1rem + var(--sat));
         }
-        .nav-glass { 
-            background: rgba(10, 10, 10, 0.9); 
+        .glass-nav { 
+            background: rgba(10, 10, 10, 0.8); 
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: calc(0.8rem + var(--sab));
         }
 
-        /* Стили сообщений */
-        .msg-container { display: flex; flex-direction: column; width: 100%; transition: all 0.3s ease; }
         .msg-bubble { 
-            max-width: 80%; padding: 12px 16px; border-radius: 20px; 
-            font-size: 15px; position: relative; cursor: pointer;
-            transition: transform 0.1s active;
-            -webkit-tap-highlight-color: transparent;
+            max-width: 78%; 
+            padding: 12px 16px; 
+            font-size: 15px;
+            line-height: 1.4;
+            position: relative;
+            user-select: none;
+            cursor: pointer;
         }
-        .my-msg { background: linear-gradient(135deg, #2563eb, #1d4ed8); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .other-msg { background: #1c1c1e; align-self: flex-start; border-bottom-left-radius: 4px; }
-
-        /* Панель закрепа */
-        #pinned-bar { 
-            background: rgba(15, 15, 15, 0.95); 
-            border-bottom: 1px solid #3b82f6; 
-            display: none; animation: slideIn 0.3s ease-out;
+        .my-msg { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); 
+            border-radius: 20px 20px 4px 20px;
         }
-        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* Reply Preview */
-        .reply-box { border-left: 3px solid #3b82f6; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; color: #999; }
-
-        /* Контейнер аватара с кнопкой редактирования */
-        .profile-avatar-wrapper { position: relative; width: 140px; height: 140px; }
-        .edit-icon-badge {
-            position: absolute; bottom: 5px; right: 5px;
-            background: #3b82f6; border: 4px solid #000;
-            border-radius: 50%; padding: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        .other-msg { 
+            background: #1c1c1e; 
+            border-radius: 20px 20px 20px 4px;
         }
 
+        .admin-glow { 
+            position: relative;
+            padding: 2px;
+            background: linear-gradient(45deg, #ff3b30, #ff9500);
+            border-radius: 50%;
+        }
+        .admin-glow img { border: 2px solid #000; }
+        .admin-badge-mini {
+            position: absolute; -top: 8px; left: 50%; transform: translateX(-50%);
+            background: #ff3b30; font-size: 7px; font-weight: 800;
+            padding: 1px 5px; border-radius: 4px; color: white;
+            z-index: 10;
+        }
+
+        .reply-preview {
+            background: rgba(255,255,255,0.05);
+            border-left: 3px solid #3b82f6;
+            padding: 4px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .pinned-bar {
+            background: rgba(20, 20, 20, 0.9);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .swipe-container {
+            transition: transform 0.2s ease-out;
+            will-change: transform;
+        }
+
+        input::placeholder { color: #555; }
         .tap-effect:active { transform: scale(0.96); opacity: 0.8; }
         .hidden { display: none !important; }
-        
-        /* Скроллбары */
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
     </style>
 </head>
 <body class="flex flex-col">
 
-    <div id="auth-screen" class="fixed inset-0 z-[200] bg-black flex items-center justify-center p-10 transition-opacity duration-500">
+    <div id="auth-screen" class="fixed inset-0 z-[100] bg-black flex items-center justify-center p-10 transition-all duration-500">
         <div class="w-full max-w-sm text-center">
-            <img src="favicon.png" class="w-24 h-24 mx-auto rounded-[2.5rem] mb-8 shadow-2xl border border-white/10">
-            <h1 class="text-4xl font-black tracking-tighter mb-10">NeTelegram</h1>
-            <div class="space-y-4">
-                <input type="tel" id="login-phone" class="w-full p-5 bg-zinc-900 rounded-2xl outline-none focus:ring-2 ring-blue-500 transition" placeholder="Номер телефона">
-                <input type="password" id="login-pass" class="w-full p-5 bg-zinc-900 rounded-2xl outline-none focus:ring-2 ring-blue-500 transition" placeholder="Пароль">
-                <button onclick="handleAuth()" class="w-full bg-white text-black font-extrabold py-5 rounded-2xl shadow-xl tap-effect text-lg">Войти</button>
-            </div>
+            <img src="favicon.png" class="w-24 h-24 rounded-[2.5rem] shadow-2xl mx-auto mb-6">
+            <h1 class="text-4xl font-extrabold tracking-tighter mb-2">NeTelegram</h1>
+            <p id="auth-desc" class="text-zinc-500 text-xs font-semibold uppercase tracking-[0.2em] mb-12">Private Edition</p>
+            <form id="auth-form" class="space-y-4">
+                <div id="reg-fields" class="space-y-4">
+                    <input type="text" id="reg-nick" class="w-full p-4 bg-zinc-900/50 border border-white/5 rounded-2xl outline-none focus:border-blue-500 transition" placeholder="Ваше имя">
+                </div>
+                <input type="tel" id="reg-phone" class="w-full p-4 bg-zinc-900/50 border border-white/5 rounded-2xl outline-none focus:border-blue-500 transition" placeholder="Номер телефона">
+                <input type="password" id="reg-pass" class="w-full p-4 bg-zinc-900/50 border border-white/5 rounded-2xl outline-none focus:border-blue-500 transition" placeholder="Пароль">
+                <button type="submit" class="w-full bg-white text-black font-extrabold py-4 rounded-2xl shadow-xl tap-effect mt-6">Продолжить</button>
+            </form>
+            <button id="toggle-auth" class="mt-8 text-zinc-400 text-sm font-medium">Уже есть аккаунт? <span class="text-blue-500">Войти</span></button>
         </div>
     </div>
 
     <div id="main-app" class="hidden flex flex-col h-full bg-[#0a0a0a]">
-        
-        <header id="header-main" class="glass px-6 py-4 pt-[calc(1.2rem+var(--sat))] flex justify-between items-center z-50">
-            <h1 class="text-2xl font-extrabold tracking-tight">NeTelegram</h1>
-            <div onclick="switchTab('profile')" class="relative tap-effect cursor-pointer">
-                <img id="h-avatar" class="w-10 h-10 rounded-full object-cover bg-zinc-800 border border-white/10" src="favicon.png">
+        <header class="glass-header px-6 py-4 flex justify-between items-center z-50">
+            <div class="flex items-center gap-3">
+                <img src="favicon.png" class="w-8 h-8 rounded-lg">
+                <h1 class="text-2xl font-extrabold tracking-tight">NeTelegram</h1>
+            </div>
+            <div id="h-avatar-wrap" class="relative tap-effect" onclick="switchTab('profile')">
+                <div id="admin-frame-h">
+                    <img id="h-avatar" class="w-10 h-10 rounded-full object-cover bg-zinc-800">
+                </div>
             </div>
         </header>
 
-        <div id="tab-chats" class="flex-1 overflow-y-auto pt-2">
-            <div onclick="openChat('chat_8a')" class="px-6 py-4 flex items-center gap-4 active:bg-white/5 transition-all tap-effect border-b border-white/5">
-                <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-2xl flex items-center justify-center shadow-lg font-black text-white text-xl">8А</div>
-                <div class="flex-1">
+        <div id="tab-chats" class="flex-1 overflow-y-auto space-y-1 py-2">
+            <div onclick="openChat('chat_8a')" class="px-6 py-4 flex items-center gap-4 active:bg-white/5 transition-all tap-effect">
+                <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span class="font-extrabold text-xl text-white">8А</span>
+                </div>
+                <div class="flex-1 border-b border-white/5 pb-4">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-lg">Беседа 8А</span>
-                        <span id="chat-time" class="text-[10px] text-zinc-500 font-bold uppercase">12:45</span>
+                        <span class="font-bold text-[16px]">Беседа 8А</span>
+                        <span class="text-[10px] text-blue-500 font-extrabold uppercase bg-blue-500/10 px-2 py-0.5 rounded">Pin</span>
                     </div>
-                    <p class="text-sm text-zinc-500 truncate font-medium">Добро пожаловать в NeTelegram!</p>
+                    <p class="text-[13px] text-zinc-500 truncate font-medium">Добро пожаловать в чат класса!</p>
                 </div>
             </div>
         </div>
 
-        <div id="tab-profile" class="hidden flex-1 overflow-y-auto p-8 space-y-10">
+        <div id="tab-profile" class="hidden flex-1 overflow-y-auto p-8 space-y-8">
             <div class="flex flex-col items-center">
-                <div class="profile-avatar-wrapper">
-                    <img id="p-avatar" class="w-full h-full rounded-[3rem] object-cover bg-zinc-900 border-2 border-white/10 shadow-2xl" src="favicon.png">
-                    <label for="upload-photo" class="edit-icon-badge tap-effect cursor-pointer">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2.5"/></svg>
-                        <input type="file" id="upload-photo" class="hidden" accept="image/*" onchange="processAvatar(event)">
-                    </label>
+                <div id="p-avatar-box" class="w-32 h-32 rounded-[2.8rem] relative mb-6 cursor-pointer" onclick="changePhoto()">
+                    <div id="p-admin-tag" class="admin-badge-mini hidden">ADMIN</div>
+                    <img id="p-avatar" class="w-full h-full rounded-[2.8rem] object-cover bg-zinc-900 border-2 border-white/10">
+                    <div class="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full border-4 border-black">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+                    </div>
                 </div>
-                <div class="text-center mt-6">
-                    <h3 id="p-username" class="text-3xl font-black tracking-tight">...</h3>
-                    <p id="p-phone" class="text-zinc-500 text-sm font-bold tracking-widest uppercase mt-2">...</p>
-                </div>
+                <h3 id="p-username" class="text-2xl font-extrabold">...</h3>
+                <p id="p-userphone" class="text-zinc-500 text-sm font-medium mt-1">...</p>
             </div>
-            
-            <div class="space-y-4">
-                <div onclick="editProfileField('username')" class="p-6 bg-white/5 rounded-3xl flex justify-between items-center tap-effect cursor-pointer border border-white/5">
-                    <span class="font-bold">Имя профиля</span>
-                    <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="3"/></svg>
+            <div class="space-y-3">
+                <div onclick="editData('username')" class="p-5 bg-white/5 rounded-2xl flex justify-between items-center tap-effect cursor-pointer">
+                    <span class="text-sm font-bold">Изменить имя</span>
+                    <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
                 </div>
-                <button onclick="logout()" class="w-full p-6 text-red-500 font-bold bg-red-500/10 rounded-3xl tap-effect border border-red-500/10">Выйти из аккаунта</button>
+                <button onclick="logout()" class="w-full p-5 text-red-500 font-bold bg-red-500/10 rounded-2xl tap-effect">Выйти из аккаунта</button>
             </div>
         </div>
 
-        <nav class="nav-glass flex justify-around items-center px-10 py-3 pb-[calc(1.2rem+var(--sab))]">
-            <button onclick="switchTab('chats')" id="nav-btn-chats" class="p-2 text-blue-500 transition-colors">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
-            </button>
-            <button onclick="switchTab('profile')" id="nav-btn-profile" class="p-2 text-zinc-700 transition-colors">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            </button>
+        <nav class="glass-nav flex justify-around items-center px-10 py-3">
+            <button onclick="switchTab('chats')" id="nav-c" class="p-2 text-blue-500 tap-effect"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></button>
+            <button onclick="switchTab('profile')" id="nav-p" class="p-2 text-zinc-700 tap-effect"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></button>
         </nav>
     </div>
 
-    <div id="chat-window" class="hidden fixed inset-0 z-[150] bg-black flex flex-col">
-        
-        <div id="pinned-bar" class="px-5 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3 overflow-hidden">
-                <div class="w-1 h-8 bg-blue-500 rounded-full"></div>
-                <div class="overflow-hidden">
-                    <p class="text-[10px] text-blue-500 font-black uppercase tracking-widest">Закреплено</p>
-                    <p id="pinned-text" class="text-xs text-zinc-400 truncate">...</p>
-                </div>
-            </div>
-            <button onclick="requestUnpin()" class="p-2 text-zinc-500">✕</button>
-        </div>
-
-        <header class="glass px-4 py-4 pt-[calc(1rem+var(--sat))] flex items-center gap-4">
-            <button onclick="closeChat()" class="p-2 text-blue-500 tap-effect text-2xl font-bold">←</button>
+    <div id="chat-win" class="hidden fixed inset-0 z-[110] bg-black flex flex-col transition-transform duration-300">
+        <header class="glass-header px-4 py-4 flex items-center gap-4">
+            <button onclick="closeChat()" class="p-2 text-blue-500 tap-effect"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg></button>
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-xs text-white">8А</div>
-                <div>
-                    <h3 class="font-bold text-sm">Беседа 8А</h3>
-                    <p class="text-[10px] text-green-500 font-bold">online</p>
-                </div>
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-xs">8А</div>
+                <div><h3 class="font-bold text-sm">Беседа 8А</h3><p class="text-[10px] text-green-500 font-bold">online</p></div>
             </div>
         </header>
 
-        <div id="chat-flow" class="flex-1 overflow-y-auto p-4 flex flex-col gap-4"></div>
-
-        <div id="reply-preview-bar" class="hidden px-5 py-3 bg-[#111] border-l-4 border-blue-500 flex items-center justify-between">
-            <div class="overflow-hidden">
-                <p id="reply-name" class="text-[10px] text-blue-500 font-black uppercase"></p>
-                <p id="reply-text" class="text-xs text-zinc-500 truncate"></p>
+        <div id="pinned-msg" class="pinned-bar hidden">
+            <div class="flex items-center gap-2 overflow-hidden">
+                <div class="w-1 h-8 bg-blue-500 rounded"></div>
+                <div class="truncate"><p class="text-blue-500 text-[10px] font-bold uppercase">Закрепленное сообщение</p><p id="pin-text" class="truncate text-white text-xs">...</p></div>
             </div>
-            <button onclick="cancelReply()" class="text-zinc-600">✕</button>
+            <button onclick="unpin()" class="text-zinc-500 px-2">✕</button>
         </div>
 
-        <form id="chat-form" class="p-3 bg-black border-t border-white/5 flex items-end gap-3 pb-[calc(1rem+var(--sab))]">
-            <div class="flex-1 bg-zinc-900 rounded-[1.5rem] px-5 py-3 border border-white/5">
-                <input type="text" id="m-input" class="w-full bg-transparent outline-none text-[15px]" placeholder="Сообщение..." autocomplete="off">
+        <div id="chat-flow" class="flex-1 overflow-y-auto p-4 flex flex-col gap-4"></div>
+
+        <div id="reply-box" class="hidden px-4 py-2 bg-zinc-900/50 flex items-center justify-between border-t border-white/5">
+            <div class="border-l-2 border-blue-500 pl-3">
+                <p id="reply-name" class="text-blue-500 text-[10px] font-bold"></p>
+                <p id="reply-text" class="text-zinc-400 text-xs truncate"></p>
             </div>
-            <button type="submit" class="bg-blue-600 w-12 h-12 flex items-center justify-center rounded-full text-white shadow-lg tap-effect">
-                <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            <button onclick="cancelReply()" class="text-zinc-500">✕</button>
+        </div>
+
+        <form id="chat-form" class="p-4 bg-[#0a0a0a] border-t border-white/5 flex items-end gap-3 pb-[calc(1rem + var(--sab))]">
+            <label class="p-3 bg-zinc-900 rounded-2xl text-zinc-400 tap-effect">
+                <input type="file" id="f-in" class="hidden" accept="image/*">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            </label>
+            <div class="flex-1 bg-zinc-900 rounded-2xl px-4 py-3">
+                <input type="text" id="m-in" class="w-full bg-transparent outline-none text-sm" placeholder="Сообщение..." autocomplete="off">
+            </div>
+            <button type="submit" class="bg-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-600/20 tap-effect">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
         </form>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get, child, onChildAdded, onChildRemoved, onChildChanged, push, remove, update, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, child, onChildAdded, onChildRemoved, onChildChanged, push, remove, update, off, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        const firebaseConfig = {
+        const conf = {
             apiKey: "AIzaSyDtbTs3c5EEU0AdWXDw4qxCmwDwBJVtMwY",
             authDomain: "netelegram-d8c52.firebaseapp.com",
             databaseURL: "https://netelegram-d8c52-default-rtdb.firebaseio.com",
             projectId: "netelegram-d8c52",
             appId: "1:214817548440:web:05e6113620f7ce7a9548ed"
         };
-
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp(conf);
         const db = getDatabase(app);
+        
+        let user = JSON.parse(localStorage.getItem('user_data'));
+        let isLogin = false;
+        let replyingTo = null;
 
-        let currentUser = JSON.parse(localStorage.getItem('user_data'));
-        let activeReply = null;
-        let touchStartX = 0;
+        if (user) startApp();
 
-        // --- АВТОРИЗАЦИЯ ---
-        window.handleAuth = async () => {
-            const ph = document.getElementById('login-phone').value.trim();
-            const ps = document.getElementById('login-pass').value.trim();
+        document.getElementById('toggle-auth').onclick = () => {
+            isLogin = !isLogin;
+            document.getElementById('reg-fields').classList.toggle('hidden', isLogin);
+            document.getElementById('toggle-auth').innerHTML = isLogin ? 'Нет аккаунта? <span class="text-blue-500">Регистрация</span>' : 'Уже есть аккаунт? <span class="text-blue-500">Войти</span>';
+        };
+
+        document.getElementById('auth-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const ph = document.getElementById('reg-phone').value.trim();
+            const ps = document.getElementById('reg-pass').value.trim();
+            const ni = document.getElementById('reg-nick').value.trim();
             
-            if(!ph || !ps) return;
-            
-            const snap = await get(child(ref(db), `users/${ph}`));
-            if(snap.exists() && snap.val().password === ps) {
-                const data = { ...snap.val(), phone: ph };
-                localStorage.setItem('user_data', JSON.stringify(data));
-                location.reload();
+            if (isLogin) {
+                const s = await get(child(ref(db), `users/${ph}`));
+                if (s.exists() && s.val().password === ps) login(ph, s.val());
+                else Swal.fire('Ошибка', 'Неверный телефон или пароль', 'error');
             } else {
-                Swal.fire('Ошибка', 'Неверные данные', 'error');
+                if (!ni || !ph) return Swal.fire('Стоп', 'Заполни имя и номер', 'warning');
+                const data = { username: ni, password: ps, photo: "", role: (ph === "+79225941382" ? "admin" : "user") };
+                await set(ref(db, `users/${ph}`), data);
+                login(ph, data);
             }
         };
 
-        if (currentUser) {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            updateUI();
-            loadPinned();
+        function login(ph, d) {
+            localStorage.setItem('user_data', JSON.stringify({ ...d, phone: ph }));
+            location.reload();
         }
 
-        function updateUI() {
-            document.getElementById('h-avatar').src = currentUser.photo || 'favicon.png';
-            document.getElementById('p-avatar').src = currentUser.photo || 'favicon.png';
-            document.getElementById('p-username').innerText = currentUser.username;
-            document.getElementById('p-phone').innerText = currentUser.phone;
+        function startApp() {
+            document.getElementById('auth-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+            }, 300);
+            
+            document.querySelectorAll('#h-avatar, #p-avatar').forEach(img => img.src = user.photo || 'favicon.png');
+            document.getElementById('p-username').innerText = user.username;
+            document.getElementById('p-userphone').innerText = user.phone;
+
+            if (user.role === 'admin') {
+                document.getElementById('p-avatar-box').classList.add('admin-glow');
+                document.getElementById('p-admin-tag').classList.remove('hidden');
+                document.getElementById('admin-frame-h').classList.add('admin-glow');
+            }
         }
 
-        // --- ПУНКТ 2: РАБОТА С ФОТО ---
-        window.processAvatar = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const base64 = event.target.result;
-                // В реальном приложении тут вызывается кроппер, здесь сохраняем в базу
-                await update(ref(db, `users/${currentUser.phone}`), { photo: base64 });
-                currentUser.photo = base64;
-                localStorage.setItem('user_data', JSON.stringify(currentUser));
-                updateUI();
-                Swal.fire({ title: 'Готово', text: 'Аватар обновлен', icon: 'success', background: '#111', color: '#fff'});
-            };
-            reader.readAsDataURL(file);
+        window.switchTab = (t) => {
+            document.getElementById('tab-chats').classList.toggle('hidden', t !== 'chats');
+            document.getElementById('tab-profile').classList.toggle('hidden', t !== 'profile');
+            document.getElementById('nav-c').className = t === 'chats' ? 'p-2 text-blue-500' : 'p-2 text-zinc-700';
+            document.getElementById('nav-p').className = t === 'profile' ? 'p-2 text-blue-500' : 'p-2 text-zinc-700';
         };
 
-        // --- ПУНКТ 4: МЕНЮ ПО КЛИКУ (БЕЗ ЗАЖАТИЯ) ---
-        window.openMessageMenu = async (msgId, text, ownerPhone) => {
-            const isAdmin = currentUser.role === 'admin';
-            const isMe = ownerPhone === currentUser.phone;
-
-            // Формируем список действий на основе прав (Пункт 5)
-            let menuHtml = `<div class="flex flex-col text-left">
-                <button onclick="Swal.clickConfirm(); handleMsgAction('copy','${text}')" class="p-4 border-b border-white/5 active:bg-white/10 w-full text-left font-bold">Копировать</button>`;
+        // CHAT ENGINE
+        let currentChatRef = null;
+        window.openChat = (id) => {
+            document.getElementById('chat-win').classList.remove('hidden');
+            document.getElementById('chat-flow').innerHTML = "";
+            if (currentChatRef) off(currentChatRef);
             
-            if (isMe || isAdmin) {
-                menuHtml += `
-                <button onclick="Swal.clickConfirm(); handleMsgAction('edit','${msgId}','${text}')" class="p-4 border-b border-white/5 active:bg-white/10 w-full text-left font-bold text-blue-500">Изменить</button>
-                <button onclick="Swal.clickConfirm(); handleMsgAction('pin','${msgId}','${text}')" class="p-4 border-b border-white/5 active:bg-white/10 w-full text-left font-bold text-yellow-500">Закрепить</button>
-                <button onclick="Swal.clickConfirm(); handleMsgAction('delete','${msgId}')" class="p-4 active:bg-white/10 w-full text-left font-bold text-red-500">Удалить</button>`;
-            }
-            
-            menuHtml += `</div>`;
-
-            await Swal.fire({
-                background: '#1c1c1e',
-                color: '#fff',
-                showConfirmButton: false,
-                padding: '0',
-                html: menuHtml
+            // Listen for pinned message
+            onValue(ref(db, `pinned/chat_8a`), (s) => {
+                const p = s.val();
+                const bar = document.getElementById('pinned-msg');
+                if (p) {
+                    bar.classList.remove('hidden');
+                    document.getElementById('pin-text').innerText = p.text;
+                } else bar.classList.add('hidden');
             });
-        };
 
-        window.handleMsgAction = async (action, id, extra) => {
-            if(action === 'copy') navigator.clipboard.writeText(id);
-            if(action === 'delete') await remove(ref(db, `messages/chat_8a/${id}`));
-            if(action === 'edit') {
-                const { value: newText } = await Swal.fire({
-                    input: 'text', inputValue: extra, background: '#111', color: '#fff', title: 'Редактировать'
-                });
-                if(newText) await update(ref(db, `messages/chat_8a/${id}`), { text: newText });
-            }
-            if(action === 'pin') {
-                await set(ref(db, `chat_8a/pinned`), { id, text: extra });
-                loadPinned();
-            }
-        };
-
-        // --- ПУНКТ 6: СВАЙП ВЛЕВО ДЛЯ ОТВЕТА ---
-        window.startSwipe = (e) => { touchStartX = e.touches[0].clientX; };
-        window.endSwipe = (e, name, text) => {
-            const deltaX = touchStartX - e.changedTouches[0].clientX;
-            if (deltaX > 70) { // Свайп влево
-                activeReply = { name, text };
-                document.getElementById('reply-preview-bar').classList.remove('hidden');
-                document.getElementById('reply-name').innerText = name;
-                document.getElementById('reply-text').innerText = text;
-                document.getElementById('m-input').focus();
-                // Визуальный эффект свайпа
-                const el = e.target.closest('.msg-bubble');
-                if(el) {
-                    el.style.transform = "translateX(-20px)";
-                    setTimeout(() => el.style.transform = "translateX(0)", 200);
-                }
-            }
-        };
-
-        // --- ЧАТ И СООБЩЕНИЯ ---
-        let chatRef = null;
-        window.openChat = (room) => {
-            document.getElementById('chat-window').classList.remove('hidden');
-            const flow = document.getElementById('chat-flow');
-            flow.innerHTML = "";
-            chatRef = ref(db, `messages/${room}`);
-            
-            onChildAdded(chatRef, (s) => renderMsg(s.key, s.val()));
-            onChildRemoved(chatRef, (s) => document.getElementById(s.key)?.remove());
-            onChildChanged(chatRef, (s) => {
+            currentChatRef = ref(db, `messages/${id}`);
+            onChildAdded(currentChatRef, (s) => renderMessage(s.key, s.val()));
+            onChildRemoved(currentChatRef, (s) => document.getElementById(s.key)?.remove());
+            onChildChanged(currentChatRef, (s) => {
                 const el = document.getElementById(s.key);
-                if(el) el.querySelector('.msg-body').innerText = s.val().text;
+                if (el) el.querySelector('.msg-text').innerText = s.val().text;
             });
         };
 
-        function renderMsg(id, m) {
-            const isMe = m.phone === currentUser.phone;
+        function renderMessage(id, m) {
+            const isMe = m.phone === user.phone;
             const html = `
-                <div id="${id}" class="msg-container" 
-                     ontouchstart="startSwipe(event)" 
-                     ontouchend="endSwipe(event, '${m.name}', '${m.text}')">
-                    <div class="msg-bubble ${isMe ? 'my-msg' : 'other-msg'}" 
-                         onclick="openMessageMenu('${id}', '${m.text}', '${m.phone}')">
-                        ${m.reply ? `<div class="reply-box"><b>${m.reply.name}</b><br>${m.reply.text}</div>` : ''}
-                        ${!isMe ? `<span class="text-[10px] font-black text-blue-400 block mb-1 uppercase">${m.name}</span>` : ''}
-                        <span class="msg-body">${m.text}</span>
-                        <span class="text-[9px] opacity-40 block text-right mt-1 font-bold">${m.time}</span>
+                <div id="${id}" class="swipe-container flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                    <div class="msg-bubble ${isMe ? 'my-msg' : 'other-msg'}" onclick="showMsgMenu('${id}', '${m.text}', ${isMe}, '${m.name}')">
+                        ${m.reply ? `<div class="reply-preview"><b>${m.reply.name}</b><br>${m.reply.text}</div>` : ''}
+                        ${!isMe ? `<span class="text-[10px] font-extrabold text-blue-400 block mb-1 uppercase">${m.name}</span>` : ''}
+                        ${m.file ? `<img src="${m.file}" class="rounded-xl mb-2 w-full max-h-60 object-cover">` : ''}
+                        <span class="msg-text">${m.text}</span>
+                        <span class="text-[9px] opacity-40 block text-right mt-1">${m.time}</span>
                     </div>
                 </div>
             `;
             const flow = document.getElementById('chat-flow');
             flow.insertAdjacentHTML('beforeend', html);
             flow.scrollTo(0, flow.scrollHeight);
+            setupSwipe(id, m.name, m.text);
         }
 
-        document.getElementById('chat-form').onsubmit = (e) => {
-            e.preventDefault();
-            const input = document.getElementById('m-input');
-            if(!input.value.trim()) return;
-
-            push(ref(db, `messages/chat_8a`), {
-                phone: currentUser.phone,
-                name: currentUser.username,
-                text: input.value,
-                reply: activeReply,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            });
-
-            input.value = "";
-            cancelReply();
-        };
-
-        // --- ПУНКТ 7: ЗАКРЕПЛЕНИЕ ---
-        function loadPinned() {
-            get(ref(db, `chat_8a/pinned`)).then(s => {
-                if(s.exists()) {
-                    document.getElementById('pinned-bar').style.display = 'flex';
-                    document.getElementById('pinned-text').innerText = s.val().text;
-                } else {
-                    document.getElementById('pinned-bar').style.display = 'none';
+        // SWIPE TO REPLY
+        function setupSwipe(id, name, text) {
+            const el = document.getElementById(id);
+            let startX = 0;
+            el.ontouchstart = (e) => startX = e.touches[0].clientX;
+            el.ontouchmove = (e) => {
+                let diff = e.touches[0].clientX - startX;
+                if (diff < 0) el.style.transform = `translateX(${Math.max(diff, -60)}px)`;
+            };
+            el.ontouchend = () => {
+                if (parseFloat(el.style.transform.replace(/[^-0-9.]/g, '')) <= -50) {
+                    replyingTo = { name, text };
+                    document.getElementById('reply-box').classList.remove('hidden');
+                    document.getElementById('reply-name').innerText = name;
+                    document.getElementById('reply-text').innerText = text;
+                    document.getElementById('m-in').focus();
                 }
-            });
+                el.style.transform = `translateX(0)`;
+            };
         }
 
-        window.requestUnpin = async () => {
-            if(currentUser.role === 'admin') {
-                await remove(ref(db, `chat_8a/pinned`));
-                loadPinned();
-            }
+        window.cancelReply = () => { replyingTo = null; document.getElementById('reply-box').classList.add('hidden'); };
+
+        // MESSAGE MENU (ON CLICK)
+        window.showMsgMenu = async (id, text, isMe, name) => {
+            const canEdit = isMe || user.role === 'admin';
+            const { value: act } = await Swal.fire({
+                background: '#111', color: '#fff', showConfirmButton: false,
+                html: `
+                    <div class="flex flex-col text-left font-bold">
+                        <button onclick="Swal.clickConfirm(); copyText('${text}')" class="p-4 border-b border-white/5">Копировать</button>
+                        ${canEdit ? `<button onclick="Swal.clickConfirm(); editMsg('${id}','${text}')" class="p-4 border-b border-white/5 text-blue-400">Изменить</button>` : ''}
+                        ${canEdit ? `<button onclick="Swal.clickConfirm(); delMsg('${id}')" class="p-4 border-b border-white/5 text-red-500">Удалить</button>` : ''}
+                        ${isMe ? `<button onclick="Swal.clickConfirm(); pinMsg('${text}')" class="p-4 text-yellow-500">Закрепить</button>` : ''}
+                    </div>
+                `
+            });
         };
 
-        // --- ВСПОМОГАТЕЛЬНОЕ ---
-        window.switchTab = (t) => {
-            document.getElementById('tab-chats').classList.toggle('hidden', t !== 'chats');
-            document.getElementById('tab-profile').classList.toggle('hidden', t !== 'profile');
-            document.getElementById('header-main').classList.toggle('hidden', t === 'profile');
-            document.getElementById('nav-btn-chats').className = t === 'chats' ? 'p-2 text-blue-500' : 'p-2 text-zinc-700';
-            document.getElementById('nav-btn-profile').className = t === 'profile' ? 'p-2 text-blue-500' : 'p-2 text-zinc-700';
+        window.copyText = (t) => navigator.clipboard.writeText(t);
+        window.delMsg = (id) => remove(ref(db, `messages/chat_8a/${id}`));
+        window.editMsg = async (id, old) => {
+            const { value: nt } = await Swal.fire({ input: 'text', inputValue: old, background:'#111', color:'#fff' });
+            if (nt) update(ref(db, `messages/chat_8a/${id}`), { text: nt });
+        };
+        window.pinMsg = (t) => set(ref(db, `pinned/chat_8a`), { text: t });
+        window.unpin = () => remove(ref(db, `pinned/chat_8a`));
+
+        document.getElementById('chat-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('m-in');
+            const file = document.getElementById('f-in').files[0];
+            if (!input.value.trim() && !file) return;
+
+            const msgData = {
+                phone: user.phone, name: user.username, text: input.value,
+                time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+            };
+            if (replyingTo) msgData.reply = replyingTo;
+
+            const send = (f = "") => {
+                if (f) msgData.file = f;
+                push(ref(db, `messages/chat_8a`), msgData);
+                input.value = ""; cancelReply();
+                document.getElementById('f-in').value = "";
+            };
+
+            if (file) {
+                const r = new FileReader();
+                r.onload = () => send(r.result);
+                r.readAsDataURL(file);
+            } else send();
         };
 
-        window.cancelReply = () => { activeReply = null; document.getElementById('reply-preview-bar').classList.add('hidden'); };
-        window.closeChat = () => { document.getElementById('chat-window').classList.add('hidden'); off(chatRef); };
+        window.changePhoto = () => {
+            const input = document.createElement('input');
+            input.type = 'file'; input.accept = 'image/*';
+            input.onchange = (e) => {
+                const f = e.target.files[0];
+                const r = new FileReader();
+                r.onload = async () => {
+                    await update(ref(db, `users/${user.phone}`), { photo: r.result });
+                    user.photo = r.result;
+                    localStorage.setItem('user_data', JSON.stringify(user));
+                    location.reload();
+                };
+                r.readAsDataURL(f);
+            };
+            input.click();
+        };
+
+        window.closeChat = () => { document.getElementById('chat-win').classList.add('hidden'); off(currentChatRef); };
         window.logout = () => { localStorage.clear(); location.reload(); };
-        window.editProfileField = async (f) => {
-            const { value: val } = await Swal.fire({ title: 'Обновить данные', input: 'text', background: '#111', color: '#fff'});
-            if(val) {
-                await update(ref(db, `users/${currentUser.phone}`), { [f]: val });
-                currentUser[f] = val;
-                localStorage.setItem('user_data', JSON.stringify(currentUser));
-                updateUI();
+        window.editData = async (f) => {
+            const { value: v } = await Swal.fire({ title: `Новое имя`, input: 'text', background: '#111', color: '#fff' });
+            if (v) {
+                await update(ref(db, `users/${user.phone}`), { [f]: v });
+                user[f] = v; localStorage.setItem('user_data', JSON.stringify(user));
+                location.reload();
             }
         };
-
     </script>
 </body>
 </html>
