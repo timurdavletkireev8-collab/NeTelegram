@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NeTelegram</title>
+    <title>NeTelegram Premium</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -11,205 +11,236 @@
 
     <style>
         :root {
-            --primary: #0088cc; /* Классический цвет Telegram */
-            --bg-dark: #0f0f0f;
+            --primary: #0088cc;
+            --bg: #000000;
             --surface: #1c1c1d;
+            --surface-light: #2c2c2e;
             --text: #ffffff;
-            --my-msg: #2b5278;
-            --other-msg: #212121;
+            --text-secondary: #8e8e93;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            background-color: var(--bg-dark);
+            background-color: var(--bg);
             color: var(--text);
-            /* Решение проблемы с адресной строкой на мобильных */
-            height: 100vh;
-            height: 100dvh; 
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* Шапка */
+        /* --- HEADER --- */
         header {
-            padding: 10px 15px;
+            padding: 15px 20px;
             background: var(--surface);
             display: flex;
             align-items: center;
-            border-bottom: 1px solid #2d2d2d;
+            justify-content: space-between;
+            border-bottom: 0.5px solid #333;
         }
 
-        .header-content { display: flex; align-items: center; gap: 12px; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .logo { width: 32px; height: 32px; border-radius: 50%; }
+        .brand { font-weight: 700; font-size: 1.1rem; letter-spacing: -0.5px; }
 
-        .logo {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .brand { font-weight: 600; font-size: 1.2rem; }
-
-        /* Вкладки */
+        /* --- NAV TABS --- */
         nav {
             display: flex;
             background: var(--surface);
-            border-bottom: 1px solid #2d2d2d;
+            padding: 4px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 14px;
+            padding: 12px;
             border: none;
             background: none;
-            color: #aaaaaa;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: 0.2s;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.3s;
         }
 
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom: 2px solid var(--primary);
-        }
+        .tab-btn.active { color: var(--primary); }
 
-        /* Контейнер */
-        .app-body { flex: 1; position: relative; overflow: hidden; }
-
-        .tab-page {
+        /* --- PAGES --- */
+        .content-area { flex: 1; position: relative; }
+        .page {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            background: var(--bg);
+        }
+        .page.active { display: flex; }
+
+        /* --- CHAT LIST --- */
+        .chat-list-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            gap: 15px;
+            border-bottom: 0.5px solid #222;
+            cursor: pointer;
+        }
+        .chat-list-item:active { background: var(--surface); }
+        .chat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .chat-info { flex: 1; }
+        .chat-info h4 { margin: 0 0 5px 0; font-size: 1rem; }
+        .chat-info p { margin: 0; color: var(--text-secondary); font-size: 0.85rem; }
+        .pin-icon { color: var(--primary); font-size: 0.8rem; }
+
+        /* --- CONVERSATION VIEW --- */
+        #conversation-view {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 200;
             display: none;
             flex-direction: column;
         }
+        #conversation-view.open { display: flex; }
 
-        .tab-page.active { display: flex; }
-
-        /* Закрепленный чат */
-        .pinned-bar {
-            background: #17212b;
-            padding: 8px 15px;
-            font-size: 0.85rem;
+        .conv-header {
+            padding: 10px 15px;
+            background: var(--surface);
             display: flex;
             align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid #2d2d2d;
-            color: var(--primary);
+            gap: 15px;
         }
+        .back-btn { background: none; border: none; color: var(--primary); font-size: 1.5rem; padding: 0; }
 
-        /* Чат */
-        #chat-container {
+        #messages-container {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Темный паттерн */
-            background-size: contain;
+            gap: 10px;
         }
 
         .msg {
-            max-width: 80%;
+            max-width: 75%;
             padding: 8px 12px;
-            border-radius: 12px;
+            border-radius: 16px;
             font-size: 0.95rem;
-            position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            animation: fadeIn 0.2s ease;
+            line-height: 1.4;
         }
+        .msg.my { align-self: flex-end; background: #2b5278; border-bottom-right-radius: 4px; }
+        .msg.other { align-self: flex-start; background: #212121; border-bottom-left-radius: 4px; }
+        .msg-user { display: block; font-size: 0.7rem; color: var(--primary); margin-bottom: 2px; font-weight: bold; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .msg.my { align-self: flex-end; background: var(--my-msg); border-bottom-right-radius: 4px; }
-        .msg.other { align-self: flex-start; background: var(--other-msg); border-bottom-left-radius: 4px; }
-
-        .msg-info {
-            display: block;
-            font-size: 0.7rem;
-            margin-bottom: 2px;
-            opacity: 0.6;
-            font-weight: bold;
-        }
-
-        /* Поле ввода (с фиксом под мобилы) */
+        /* --- INPUT AREA --- */
         .input-bar {
             background: var(--surface);
-            padding: 10px 15px 25px 15px; /* Увеличили нижний отступ для мобильных браузеров */
+            padding: 10px 15px 30px 15px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
-
         #msg-input {
             flex: 1;
             background: #242425;
-            border: 1px solid #333;
+            border: none;
             color: white;
             padding: 12px 18px;
-            border-radius: 22px;
+            border-radius: 20px;
             outline: none;
         }
+        #send-btn { background: none; border: none; color: var(--primary); font-weight: 700; }
 
-        #send-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-weight: bold;
-            font-size: 1.1rem;
+        /* --- DIARY PAGE --- */
+        .diary-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
         }
-
-        /* Дневник (iframe) */
-        iframe {
+        .diary-card {
+            background: var(--surface);
+            padding: 40px 20px;
+            border-radius: 24px;
             width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
+            border: 1px solid #333;
         }
-
+        .diary-btn {
+            display: inline-block;
+            margin-top: 25px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 15px 35px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-content">
-            <img src="favicon.png" class="logo" alt="logo">
+        <div class="header-left">
+            <img src="favicon.png" class="logo" alt="logo" onerror="this.src='https://ui-avatars.com/api/?name=NT&background=0088cc&color=fff'">
             <span class="brand">NeTelegram</span>
         </div>
     </header>
 
     <nav>
-        <button class="tab-btn active" onclick="showTab('chat-page')">ЧАТЫ</button>
-        <button class="tab-btn" onclick="showTab('diary-page')">ДНЕВНИК</button>
+        <button class="tab-btn active" id="btn-chats" onclick="switchTab('chats')">ЧАТЫ</button>
+        <button class="tab-btn" id="btn-diary" onclick="switchTab('diary')">ДНЕВНИК</button>
     </nav>
 
-    <div class="app-body">
-        
-        <div id="chat-page" class="tab-page active">
-            <div class="pinned-bar">
-                📌 <b>БЕСЕДА 8А</b>
-            </div>
-            <div id="chat-container">
+    <div class="content-area">
+        <div id="page-chats" class="page active">
+            <div class="chat-list-item" onclick="openChat()">
+                <div class="chat-icon">👥</div>
+                <div class="chat-info">
+                    <h4>БЕСЕДА 8А <span class="pin-icon">📌</span></h4>
+                    <p id="last-msg-preview">Нажми, чтобы открыть чат...</p>
                 </div>
-            <div class="input-bar">
-                <input type="text" id="msg-input" placeholder="Сообщение" autocomplete="off">
-                <button id="send-btn">ОТПР.</button>
+            </div>
+            </div>
+
+        <div id="page-diary" class="page">
+            <div class="diary-content">
+                <div class="diary-card">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">📓</div>
+                    <h2 style="margin: 0;">Электронный дневник</h2>
+                    <p style="color: var(--text-secondary); margin-top: 10px;">Нажмите кнопку ниже, чтобы открыть портал образования</p>
+                    <a href="https://one.astrobl.ru/authorize" target="_blank" class="diary-btn">ОТКРЫТЬ ДНЕВНИК</a>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div id="diary-page" class="tab-page">
-            <iframe src="https://one.astrobl.ru/authorize"></iframe>
+    <div id="conversation-view">
+        <div class="conv-header">
+            <button class="back-btn" onclick="closeChat()">←</button>
+            <div style="font-weight: 700;">БЕСЕДА 8А</div>
         </div>
-
+        <div id="messages-container"></div>
+        <div class="input-bar">
+            <input type="text" id="msg-input" placeholder="Сообщение" autocomplete="off">
+            <button id="send-btn">ОТПР.</button>
+        </div>
     </div>
 
     <script>
-        // --- Настройки Firebase ---
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyDtbTs3c5EEU0AdWXDw4qxCmwDwBJVtMwY",
             authDomain: "netelegram-d8c52.firebaseapp.com",
@@ -224,53 +255,62 @@
         const db = firebase.database();
         const chatRef = db.ref('messages');
 
-        // Имя для чата (можно заменить на prompt)
-        const myName = "Ученик"; 
+        const myName = "Я"; // Можно менять
 
-        const container = document.getElementById('chat-container');
-        const input = document.getElementById('msg-input');
+        // --- UI LOGIC ---
+        function switchTab(tab) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('page-' + tab).classList.add('active');
+            document.getElementById('btn-' + tab).classList.add('active');
+        }
+
+        function openChat() {
+            document.getElementById('conversation-view').classList.add('open');
+        }
+
+        function closeChat() {
+            document.getElementById('conversation-view').classList.remove('open');
+        }
+
+        // --- CHAT LOGIC ---
+        const msgInput = document.getElementById('msg-input');
         const sendBtn = document.getElementById('send-btn');
+        const container = document.getElementById('messages-container');
+        const preview = document.getElementById('last-msg-preview');
 
-        // Отправка данных
-        function sendMessage() {
-            const val = input.value.trim();
-            if(val) {
+        function send() {
+            const text = msgInput.value.trim();
+            if (text) {
                 chatRef.push({
                     user: myName,
-                    text: val,
+                    text: text,
                     time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 });
-                input.value = '';
-                // Скрываем клавиатуру на мобилках после отправки (опционально)
-                // input.blur(); 
+                msgInput.value = '';
             }
         }
 
-        sendBtn.onclick = sendMessage;
-        input.onkeypress = (e) => { if(e.key === 'Enter') sendMessage() };
+        sendBtn.onclick = send;
+        msgInput.onkeypress = (e) => { if(e.key === 'Enter') send() };
 
-        // Получение данных
-        chatRef.limitToLast(40).on('child_added', (snap) => {
+        chatRef.limitToLast(50).on('child_added', (snap) => {
             const data = snap.val();
             const isMy = data.user === myName;
+            
             const div = document.createElement('div');
             div.className = `msg ${isMy ? 'my' : 'other'}`;
             div.innerHTML = `
-                <span class="msg-info">${isMy ? 'Вы' : data.user} • ${data.time}</span>
+                <span class="msg-user">${isMy ? 'Вы' : data.user}</span>
                 ${data.text}
+                <div style="font-size: 0.6rem; opacity: 0.5; text-align: right; margin-top: 4px;">${data.time}</div>
             `;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
-        });
-
-        // Переключение вкладок
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
+            // Обновляем превью в списке чатов
+            preview.innerText = `${data.user}: ${data.text.substring(0, 20)}...`;
+        });
     </script>
 </body>
 </html>
