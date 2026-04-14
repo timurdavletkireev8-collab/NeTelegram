@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>NeTelegram</title>
+
 <link rel="icon" href="favicon.png">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -11,108 +12,105 @@
 
 <style>
 :root{
---bg:#000000;
---surface:#1c1c1d;
---surface-2:#2a2a2c;
+--bg:#000;
+--glass:rgba(28,28,29,.75);
+--border:rgba(255,255,255,.06);
 --accent:#0088cc;
---text:#ffffff;
---text-muted:#8e8e93;
+--text:#fff;
+--muted:#8e8e93;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;}
-body{background:var(--bg);color:var(--text);height:100dvh;overflow:hidden;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+background:var(--bg);
+color:var(--text);
+font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;
+height:100dvh;
+overflow:hidden;
+}
 
-.app{display:flex;flex-direction:column;height:100dvh;}
+/* LAYOUT */
+.app{
+display:flex;
+flex-direction:column;
+height:100dvh;
+}
 
-header{
+/* HEADER */
+.header{
 position:sticky;
 top:0;
-background:rgba(28,28,29,.85);
-backdrop-filter:blur(12px);
+z-index:10;
+backdrop-filter:blur(16px);
+background:var(--glass);
+border-bottom:1px solid var(--border);
 padding:14px;
 display:flex;
 align-items:center;
-gap:12px;
-border-bottom:1px solid rgba(255,255,255,0.05);
+gap:10px;
 }
-header img{width:28px;height:28px;}
-header h1{font-size:17px;font-weight:600;letter-spacing:.3px;}
+.header img{width:26px;height:26px}
+.header span{font-weight:600}
 
-.tabs{display:flex;background:var(--surface);}
+/* TABS */
+.tabs{display:flex;background:var(--glass)}
 .tab{
 flex:1;
+text-align:center;
 padding:12px;
-text-align:center;
 font-size:13px;
-letter-spacing:.5px;
-color:var(--text-muted);
+color:var(--muted);
 cursor:pointer;
-transition:.25s;
+transition:.2s;
 }
-.tab.active{color:var(--accent);border-bottom:2px solid var(--accent);}
+.tab.active{
+color:var(--accent);
+border-bottom:2px solid var(--accent);
+}
 
-.page{flex:1;overflow:auto;padding:12px;display:none;}
-.page.active{display:block;animation:fade .25s ease;}
+/* PAGES */
+.page{
+flex:1;
+overflow:auto;
+padding:12px;
+display:none;
+}
+.page.active{display:block}
 
-@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-
-.chat-item{
-background:var(--surface);
+/* CHAT LIST */
+.chat{
+background:rgba(255,255,255,0.02);
 padding:16px;
-border-radius:14px;
+border-radius:16px;
+border:1px solid var(--border);
 margin-bottom:10px;
-font-size:14px;
-letter-spacing:.3px;
-cursor:pointer;
-transition:.2s;
-border:1px solid transparent;
-}
-.chat-item:hover{border-color:rgba(255,255,255,0.06);}
-
-.diary-card{
-margin-top:40px;
-background:linear-gradient(145deg,#1c1c1d,#111);
-padding:24px;
-border-radius:20px;
-text-align:center;
-border:1px solid rgba(255,255,255,0.05);
-}
-
-button{
-background:var(--accent);
-border:none;
-padding:12px 18px;
-border-radius:12px;
-color:#fff;
-font-size:14px;
-letter-spacing:.4px;
 cursor:pointer;
 transition:.2s;
 }
-button:active{transform:scale(.97);}
+.chat:hover{background:rgba(255,255,255,0.04)}
 
+.chat-title{font-size:14px;font-weight:500}
+.chat-last{
+font-size:12px;
+color:var(--muted);
+margin-top:4px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+/* CHAT WINDOW */
 .chat-window{
 position:fixed;
 inset:0;
-background:var(--bg);
+background:#000;
 display:none;
 flex-direction:column;
 z-index:20;
 }
-.chat-window.active{display:flex;}
+.chat-window.active{display:flex}
 
-.chat-header{
-padding:12px;
-display:flex;
-align-items:center;
-gap:10px;
-background:rgba(28,28,29,.9);
-backdrop-filter:blur(10px);
-border-bottom:1px solid rgba(255,255,255,0.05);
-}
-
-.back{color:var(--accent);cursor:pointer;font-size:14px;}
-
+/* MESSAGES */
 .messages{
 flex:1;
 overflow:auto;
@@ -120,128 +118,140 @@ padding:12px;
 display:flex;
 flex-direction:column;
 gap:10px;
+scroll-behavior:smooth;
 }
 
 .msg{
 max-width:75%;
 padding:10px 12px;
-border-radius:14px;
+border-radius:16px;
 font-size:13px;
-line-height:1.4;
-animation:pop .2s ease;
+animation:fade .2s ease;
 }
-
-@keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 
 .mine{
 align-self:flex-end;
 background:var(--accent);
 }
-
 .other{
 align-self:flex-start;
-background:var(--surface);
+background:#1c1c1d;
 }
 
-.msg-name{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:3px;}
-.msg-time{font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;text-align:right;}
+.msg-name{font-size:10px;color:#aaa;margin-bottom:3px}
+.msg-time{font-size:9px;color:#aaa;margin-top:4px;text-align:right}
 
-.input-area{
-padding:10px 10px 40px;
-background:rgba(28,28,29,.9);
+/* INPUT */
+.input{
 display:flex;
 gap:8px;
-backdrop-filter:blur(10px);
-border-top:1px solid rgba(255,255,255,0.05);
+padding:10px 10px 50px;
+background:var(--glass);
+backdrop-filter:blur(12px);
+border-top:1px solid var(--border);
 }
-
-.input-area input{
+.input input{
 flex:1;
 padding:12px;
 border-radius:12px;
 border:none;
-background:var(--surface-2);
-color:var(--text);
-font-size:14px;
+background:#1c1c1d;
+color:#fff;
 outline:none;
 }
+.input button{
+background:var(--accent);
+border:none;
+padding:12px;
+border-radius:12px;
+color:#fff;
+cursor:pointer;
+}
 
+/* MODAL */
 .modal{
 position:fixed;
 inset:0;
 background:#000;
 display:flex;
-align-items:center;
 justify-content:center;
+align-items:center;
 z-index:50;
 }
-
-.modal-box{
-width:85%;
-background:var(--surface);
-padding:24px;
-border-radius:18px;
+.box{
+background:#1c1c1d;
+padding:20px;
+border-radius:16px;
+width:80%;
 text-align:center;
-border:1px solid rgba(255,255,255,0.05);
 }
-
-.modal input{
-margin-top:12px;
-padding:12px;
+.box input{
+margin-top:10px;
+padding:10px;
 width:100%;
-border-radius:12px;
+border-radius:10px;
 border:none;
-background:var(--surface-2);
+background:#2a2a2a;
 color:#fff;
 }
 
+@keyframes fade{
+from{opacity:0;transform:translateY(5px)}
+to{opacity:1}
+}
 </style>
 </head>
+
 <body>
 
 <div class="app">
-<header>
+
+<div class="header">
 <img src="favicon.png">
-<h1>NeTelegram</h1>
-</header>
+<span>NeTelegram</span>
+</div>
 
 <div class="tabs">
-<div class="tab active" onclick="switchTab(event,'chats')">ЧАТЫ</div>
-<div class="tab" onclick="switchTab(event,'diary')">ДНЕВНИК</div>
+<div class="tab active" onclick="tab(event,'chats')">ЧАТЫ</div>
+<div class="tab" onclick="tab(event,'diary')">ДНЕВНИК</div>
 </div>
 
 <div id="chats" class="page active">
-<div class="chat-item" onclick="openChat()">БЕСЕДА 8А</div>
+<div class="chat" onclick="openChat()">
+<div class="chat-title">БЕСЕДА 8А</div>
+<div id="lastMsg" class="chat-last">Загрузка...</div>
+</div>
 </div>
 
 <div id="diary" class="page">
-<div class="diary-card">
-<h3 style="margin-bottom:10px">Дневник</h3>
-<button onclick="window.open('https://one.astrobl.ru/authorize','_blank')">ОТКРЫТЬ</button>
-</div>
-</div>
+<button onclick="window.open('https://one.astrobl.ru/authorize')">ОТКРЫТЬ ДНЕВНИК</button>
 </div>
 
-<div id="chatWindow" class="chat-window">
-<div class="chat-header">
-<div class="back" onclick="closeChat()">Назад</div>
-<div style="font-size:14px">БЕСЕДА 8А</div>
 </div>
 
-<div id="messages" class="messages"></div>
+<!-- CHAT -->
+<div id="chatWin" class="chat-window">
 
-<div class="input-area">
-<input id="msgInput" placeholder="Сообщение">
-<button onclick="sendMessage()">OK</button>
-</div>
+<div class="header">
+<div onclick="closeChat()" style="cursor:pointer;color:#0088cc">Назад</div>
 </div>
 
+<div id="msgs" class="messages"></div>
+
+<div class="input">
+<input id="text">
+<button onclick="send()">OK</button>
+</div>
+
+</div>
+
+<!-- MODAL -->
 <div id="modal" class="modal" style="display:none">
-<div class="modal-box">
-<div style="margin-bottom:10px">Введите имя</div>
-<input id="nameInput">
+<div class="box">
+Введите имя
+<input id="name">
 <br><br>
-<button onclick="saveName()">Продолжить</button>
+<button onclick="save()">Продолжить</button>
 </div>
 </div>
 
@@ -259,51 +269,84 @@ appId:"1:214817548440:web:05e6113620f7ce7a9548ed"
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
-let username=localStorage.getItem('name');
-if(!username){document.getElementById('modal').style.display='flex';}
+let user=localStorage.getItem('name');
 
-function saveName(){
-const name=document.getElementById('nameInput').value.trim();
-if(name){localStorage.setItem('name',name);username=name;document.getElementById('modal').style.display='none';}
+if(!user){
+document.getElementById('modal').style.display='flex';
 }
 
-function switchTab(e,tab){
+function save(){
+let n=document.getElementById('name').value.trim();
+if(n){
+localStorage.setItem('name',n);
+user=n;
+document.getElementById('modal').style.display='none';
+}
+}
+
+/* tabs */
+function tab(e,id){
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
 e.target.classList.add('active');
 document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById(tab).classList.add('active');
+document.getElementById(id).classList.add('active');
 }
 
-function openChat(){document.getElementById('chatWindow').classList.add('active');}
-function closeChat(){document.getElementById('chatWindow').classList.remove('active');}
+/* chat */
+function openChat(){
+document.getElementById('chatWin').classList.add('active');
+setTimeout(scrollBottom,200);
+}
+function closeChat(){
+document.getElementById('chatWin').classList.remove('active');
+}
 
-function sendMessage(){
-const input=document.getElementById('msgInput');
-const text=input.value.trim();
-if(!text)return;
+/* send */
+function send(){
+let input=document.getElementById('text');
+let txt=input.value.trim();
+if(!txt)return;
 
-const msg={name:username,text,time:Date.now()};
-db.ref('messages').push(msg);
+db.ref('messages').push({
+name:user,
+text:txt,
+time:firebase.database.ServerValue.TIMESTAMP
+});
+
 input.value='';
 }
 
-const messagesDiv=document.getElementById('messages');
+/* realtime */
+const msgs=document.getElementById('msgs');
 
-db.ref('messages').on('child_added',snap=>{
-const m=snap.val();
+db.ref('messages').limitToLast(100).on('child_added',snap=>{
+let m=snap.val();
 
-const wrap=document.createElement('div');
-wrap.className='msg '+(m.name===username?'mine':'other');
+let el=document.createElement('div');
+el.className='msg '+(m.name===user?'mine':'other');
 
-wrap.innerHTML=`
+el.innerHTML=`
 <div class="msg-name">${m.name}</div>
 <div>${m.text}</div>
 <div class="msg-time">${new Date(m.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
 `;
 
-messagesDiv.appendChild(wrap);
-messagesDiv.scrollTop=messagesDiv.scrollHeight;
+msgs.appendChild(el);
+
+updateLast(m);
+
+setTimeout(scrollBottom,100);
 });
+
+/* last message */
+function updateLast(m){
+document.getElementById('lastMsg').innerText = m.name + ': ' + m.text;
+}
+
+/* scroll */
+function scrollBottom(){
+msgs.scrollTop = msgs.scrollHeight;
+}
 </script>
 
 </body>
