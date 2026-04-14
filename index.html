@@ -23,7 +23,6 @@
             padding-top: calc(0.8rem + var(--sat));
         }
 
-        /* Красивая нижняя навигация */
         .glass-nav { 
             background: rgba(15, 15, 15, 0.85); 
             backdrop-filter: blur(20px);
@@ -32,56 +31,19 @@
             height: calc(70px + var(--sab));
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            transition: all 0.2s;
-        }
-
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s; }
         .nav-item.active { color: #3b82f6; }
         .nav-item.inactive { color: #52525b; }
 
-        .msg-bubble { 
-            max-width: 82%; 
-            padding: 10px 14px; 
-            font-size: 15px;
-            line-height: 1.4;
-            position: relative;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .my-msg { 
-            background: linear-gradient(135deg, #3b82f6, #2563eb); 
-            border-radius: 18px 18px 4px 18px;
-        }
-        .other-msg { 
-            background: #1c1c1e; 
-            border-radius: 18px 18px 18px 4px;
-        }
+        .msg-bubble { max-width: 82%; padding: 10px 14px; font-size: 15px; line-height: 1.4; position: relative; cursor: pointer; }
+        .my-msg { background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 18px 18px 4px 18px; }
+        .other-msg { background: #1c1c1e; border-radius: 18px 18px 18px 4px; }
 
-        .admin-glow { 
-            position: relative;
-            padding: 2px;
-            background: linear-gradient(45deg, #ff3b30, #ff9500);
-            border-radius: 50%;
-        }
+        .admin-glow { position: relative; padding: 2px; background: linear-gradient(45deg, #ff3b30, #ff9500); border-radius: 50%; }
         .admin-glow img { border: 2px solid #000; }
         
-        .reply-line {
-            border-left: 2px solid rgba(255,255,255,0.5);
-            padding-left: 8px;
-            margin-bottom: 4px;
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .swipe-container {
-            transition: transform 0.15s ease-out;
-            touch-action: pan-y;
-        }
+        .reply-line { border-left: 2px solid rgba(255,255,255,0.5); padding-left: 8px; margin-bottom: 4px; font-size: 12px; opacity: 0.8; }
+        .swipe-container { transition: transform 0.15s ease-out; touch-action: pan-y; }
 
         .hidden { display: none !important; }
         .tap-effect:active { transform: scale(0.95); opacity: 0.8; }
@@ -92,14 +54,14 @@
     <div id="auth-screen" class="fixed inset-0 z-[100] bg-black flex items-center justify-center p-10 transition-all duration-500">
         <div class="w-full max-w-sm text-center">
             <img src="favicon.png" class="w-20 h-20 rounded-2xl mx-auto mb-6 shadow-2xl">
-            <h1 class="text-3xl font-extrabold mb-8">NeTelegram</h1>
+            <h1 id="auth-title" class="text-3xl font-extrabold mb-8">Регистрация</h1>
             <form id="auth-form" class="space-y-4">
                 <div id="reg-fields"><input type="text" id="reg-nick" class="w-full p-4 bg-zinc-900 border border-white/5 rounded-2xl outline-none" placeholder="Имя"></div>
                 <input type="tel" id="reg-phone" class="w-full p-4 bg-zinc-900 border border-white/5 rounded-2xl outline-none" placeholder="Телефон">
                 <input type="password" id="reg-pass" class="w-full p-4 bg-zinc-900 border border-white/5 rounded-2xl outline-none" placeholder="Пароль">
-                <button type="submit" class="w-full bg-white text-black font-bold py-4 rounded-2xl tap-effect">Далее</button>
+                <button type="submit" id="auth-submit-btn" class="w-full bg-white text-black font-bold py-4 rounded-2xl tap-effect">Создать аккаунт</button>
             </form>
-            <button id="toggle-auth" class="mt-6 text-zinc-500 text-sm">Уже есть аккаунт? <span class="text-blue-500">Войти</span></button>
+            <button id="toggle-auth" class="mt-6 text-zinc-500 text-sm font-medium">Уже есть аккаунт? <span class="text-blue-500">Войти</span></button>
         </div>
     </div>
 
@@ -109,7 +71,7 @@
                 <img src="favicon.png" class="w-8 h-8 rounded-lg">
                 <span class="text-xl font-extrabold tracking-tight">NeTelegram</span>
             </div>
-            <div id="h-avatar-wrap" onclick="switchTab('profile')" class="tap-effect">
+            <div onclick="switchTab('profile')" class="tap-effect">
                 <div id="admin-frame-h"><img id="h-avatar" class="w-9 h-9 rounded-full object-cover bg-zinc-800"></div>
             </div>
         </header>
@@ -119,7 +81,7 @@
                 <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg font-black text-xl">8А</div>
                 <div class="flex-1 border-b border-white/5 pb-4">
                     <div class="flex justify-between items-center"><span class="font-bold">Беседа 8А</span><span class="text-[10px] text-blue-500 font-bold uppercase">Pin</span></div>
-                    <p class="text-xs text-zinc-500 truncate">Нажмите, чтобы войти в чат</p>
+                    <p class="text-xs text-zinc-500 truncate">Нажмите для общения</p>
                 </div>
             </div>
         </div>
@@ -176,7 +138,7 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             </label>
             <input type="text" id="m-in" class="flex-1 bg-zinc-900 p-4 rounded-2xl outline-none text-sm" placeholder="Сообщение..." autocomplete="off">
-            <button type="submit" class="bg-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-600/30 tap-effect"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            <button type="submit" class="bg-blue-600 p-4 rounded-2xl text-white shadow-lg tap-effect"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </form>
     </div>
 
@@ -195,15 +157,18 @@
         const db = getDatabase(app);
         
         let user = JSON.parse(localStorage.getItem('user_data'));
-        let isLogin = false;
+        let isLoginMode = false;
         let replyingTo = null;
 
         if (user) startApp();
 
+        // ФИКС КНОПКИ ВОЙТИ
         document.getElementById('toggle-auth').onclick = () => {
-            isLogin = !isLogin;
-            document.getElementById('reg-fields').classList.toggle('hidden', isLogin);
-            document.getElementById('toggle-auth').innerHTML = isLogin ? 'Нет аккаунта? <span class="text-blue-500">Регистрация</span>' : 'Есть аккаунт? <span class="text-blue-500">Войти</span>';
+            isLoginMode = !isLoginMode;
+            document.getElementById('reg-fields').classList.toggle('hidden', isLoginMode);
+            document.getElementById('auth-title').innerText = isLoginMode ? 'Вход' : 'Регистрация';
+            document.getElementById('auth-submit-btn').innerText = isLoginMode ? 'Войти' : 'Создать аккаунт';
+            document.getElementById('toggle-auth').innerHTML = isLoginMode ? 'Нет аккаунта? <span class="text-blue-500">Регистрация</span>' : 'Уже есть аккаунт? <span class="text-blue-500">Войти</span>';
         };
 
         document.getElementById('auth-form').onsubmit = async (e) => {
@@ -212,11 +177,13 @@
             const ps = document.getElementById('reg-pass').value.trim();
             const ni = document.getElementById('reg-nick').value.trim();
             if (!ph || !ps) return;
-            if (isLogin) {
+
+            if (isLoginMode) {
                 const s = await get(child(ref(db), `users/${ph}`));
                 if (s.exists() && s.val().password === ps) login(ph, s.val());
-                else Swal.fire('Ошибка', 'Неверные данные', 'error');
+                else Swal.fire('Ошибка', 'Неверный телефон или пароль', 'error');
             } else {
+                if (!ni) return;
                 const data = { username: ni, password: ps, photo: "", role: (ph === "+79225941382" ? "admin" : "user") };
                 await set(ref(db, `users/${ph}`), data);
                 login(ph, data);
@@ -247,17 +214,16 @@
             document.getElementById('nav-p').className = t === 'profile' ? 'nav-item active' : 'nav-item inactive';
         };
 
+        let currentChatRef = null;
         window.openChat = (id) => {
             document.getElementById('chat-win').classList.remove('hidden');
             const flow = document.getElementById('chat-flow');
             flow.innerHTML = "";
-            
             onValue(ref(db, `pinned/chat_8a`), (s) => {
                 const p = s.val();
                 document.getElementById('pinned-msg').classList.toggle('hidden', !p);
                 if (p) document.getElementById('pin-text').innerText = p.text;
             });
-
             currentChatRef = ref(db, `messages/${id}`);
             onChildAdded(currentChatRef, (s) => renderMessage(s.key, s.val()));
             onChildRemoved(currentChatRef, (s) => document.getElementById(s.key)?.remove());
@@ -310,7 +276,7 @@
 
         window.showMsgMenu = async (id, text, isMe, name) => {
             const canEdit = isMe || user.role === 'admin';
-            const { value: act } = await Swal.fire({
+            await Swal.fire({
                 background: '#18181b', color: '#fff', showConfirmButton: false,
                 html: `
                     <div class="flex flex-col text-left font-bold gap-2">
@@ -336,5 +302,57 @@
         document.getElementById('chat-form').onsubmit = async (e) => {
             e.preventDefault();
             const input = document.getElementById('m-in');
-            const file = document.getElementById('f-in').files[0];
-            if
+            const fileInput = document.getElementById('f-in');
+            const file = fileInput.files[0];
+            if (!input.value.trim() && !file) return;
+
+            const msgData = {
+                phone: user.phone, name: user.username, text: input.value,
+                time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+            };
+            if (replyingTo) msgData.reply = replyingTo;
+
+            const send = (f = "") => {
+                if (f) msgData.file = f;
+                push(ref(db, `messages/chat_8a`), msgData);
+                input.value = ""; cancelReply();
+                fileInput.value = "";
+            };
+
+            if (file) {
+                const r = new FileReader();
+                r.onload = () => send(r.result);
+                r.readAsDataURL(file);
+            } else send();
+        };
+
+        window.changePhoto = () => {
+            const input = document.createElement('input');
+            input.type = 'file'; input.accept = 'image/*';
+            input.onchange = (e) => {
+                const f = e.target.files[0];
+                const r = new FileReader();
+                r.onload = async () => {
+                    await update(ref(db, `users/${user.phone}`), { photo: r.result });
+                    user.photo = r.result;
+                    localStorage.setItem('user_data', JSON.stringify(user));
+                    location.reload();
+                };
+                r.readAsDataURL(f);
+            };
+            input.click();
+        };
+
+        window.closeChat = () => document.getElementById('chat-win').classList.add('hidden');
+        window.logout = () => { localStorage.clear(); location.reload(); };
+        window.editData = async (f) => {
+            const { value: v } = await Swal.fire({ title: `Новое имя`, input: 'text', background: '#18181b', color: '#fff' });
+            if (v) {
+                await update(ref(db, `users/${user.phone}`), { [f]: v });
+                user[f] = v; localStorage.setItem('user_data', JSON.stringify(user));
+                location.reload();
+            }
+        };
+    </script>
+</body>
+</html>
