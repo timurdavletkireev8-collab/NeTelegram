@@ -7,96 +7,179 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --sat: env(safe-area-inset-top); --sab: env(safe-area-inset-bottom); }
-        body { background: #000; color: white; font-family: 'Inter', sans-serif; height: 100dvh; overflow: hidden; margin: 0; }
-        .glass { background: rgba(20, 20, 22, 0.85); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,255,255,0.1); padding-bottom: var(--sab); }
+        body { 
+            background: #000; color: #fff; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            height: 100dvh; overflow: hidden; margin: 0; 
+        }
         
-        .msg-bubble { max-width: 80%; position: relative; animation: slideUp 0.2s ease-out; user-select: none; -webkit-user-select: none; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Glass Effect */
+        .glass-header { 
+            background: rgba(10, 10, 10, 0.75); 
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-top: calc(1rem + var(--sat));
+        }
+        .glass-nav { 
+            background: rgba(10, 10, 10, 0.8); 
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: calc(0.8rem + var(--sab));
+        }
+
+        /* Message Bubbles */
+        .msg-bubble { 
+            max-width: 78%; 
+            padding: 12px 16px; 
+            font-size: 15px;
+            line-height: 1.4;
+            transition: transform 0.1s;
+            will-change: transform;
+        }
+        .my-msg { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); 
+            border-radius: 20px 20px 4px 20px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .other-msg { 
+            background: #1c1c1e; 
+            border-radius: 20px 20px 20px 4px;
+        }
+
+        /* Admin Frame Premium */
+        .admin-glow { 
+            position: relative;
+            padding: 2px;
+            background: linear-gradient(45deg, #ff3b30, #ff9500);
+            border-radius: 50%;
+        }
+        .admin-glow img { border: 2px solid #000; }
+        .admin-badge-mini {
+            position: absolute; -top: 8px; left: 50%; transform: translateX(-50%);
+            background: #ff3b30; font-size: 7px; font-weight: 800;
+            padding: 1px 5px; border-radius: 4px; color: white;
+        }
+
+        /* Inputs */
+        input::placeholder { color: #555; }
+        .tap-effect:active { transform: scale(0.96); opacity: 0.8; }
         
-        .my-msg { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 18px 18px 4px 18px; align-self: flex-end; }
-        .other-msg { background: #1c1c1e; border-radius: 18px 18px 18px 4px; align-self: flex-start; }
-        
-        .admin-frame { border: 2px solid #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
-        .admin-tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #ef4444; font-size: 8px; font-weight: 900; padding: 1px 6px; border-radius: 4px; }
-        
-        input[type="file"] { display: none; }
         .hidden { display: none !important; }
-        #messages-flow { padding-bottom: 20px; }
+        #chat-flow { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="flex flex-col">
 
-    <div id="auth-screen" class="fixed inset-0 z-[100] bg-black flex items-center justify-center p-8 transition-opacity duration-300">
+    <div id="auth-screen" class="fixed inset-0 z-[100] bg-black flex items-center justify-center p-10 transition-all duration-500">
         <div class="w-full max-w-sm text-center">
-            <img src="favicon.png" class="w-20 h-20 mx-auto rounded-3xl mb-4">
-            <h1 class="text-3xl font-black mb-8">NeTelegram</h1>
-            <form id="auth-form" class="space-y-3">
-                <div id="reg-fields" class="space-y-3">
-                    <input type="text" id="reg-nick" class="w-full p-4 bg-zinc-900 rounded-2xl outline-none" placeholder="Имя">
+            <div class="relative inline-block mb-6">
+                <img src="favicon.png" class="w-24 h-24 rounded-[2.5rem] shadow-2xl">
+            </div>
+            <h1 class="text-4xl font-extrabold tracking-tighter mb-2">NeTelegram</h1>
+            <p id="auth-desc" class="text-zinc-500 text-xs font-semibold uppercase tracking-[0.2em] mb-12">Private Edition</p>
+            
+            <form id="auth-form" class="space-y-4">
+                <div id="reg-fields" class="space-y-4">
+                    <input type="text" id="reg-nick" class="w-full p-4 bg-zinc-900/50 border border-white/5 rounded-2xl outline-none focus:border-blue-500 transition" placeholder="Ваше имя">
                 </div>
-                <input type="tel" id="reg-phone" class="w-full p-4 bg-zinc-900 rounded-2xl outline-none" placeholder="Телефон">
-                <input type="password" id="reg-pass" class="w-full p-4 bg-zinc-900 rounded-2xl outline-none" placeholder="Пароль">
-                <button type="submit" class="w-full bg-white text-black font-bold py-4 rounded-2xl mt-4">Далее</button>
+                <input type="tel" id="reg-phone" class="w-full p-4 bg-zinc-900/50 border border-white/5 rounded-2xl outline-none focus:border-blue-500 transition" placeholder="Номер телефона">
+                <input type="password" id="reg-pass" class="w-full p-4 bg-zinc-900/50 border border-white/5 rounded-2xl outline-none focus:border-blue-500 transition" placeholder="Пароль">
+                <button type="submit" class="w-full bg-white text-black font-extrabold py-4 rounded-2xl shadow-xl tap-effect mt-6">Продолжить</button>
             </form>
-            <button id="toggle-auth" class="mt-6 text-blue-500 text-sm">Уже есть аккаунт? Войти</button>
+            <button id="toggle-auth" class="mt-8 text-zinc-400 text-sm font-medium">Уже есть аккаунт? <span class="text-blue-500">Войти</span></button>
         </div>
     </div>
 
-    <div id="main-app" class="hidden flex flex-col h-full">
-        <header class="p-4 pt-[calc(1rem+var(--sat))] flex justify-between items-center border-b border-zinc-900">
-            <h2 id="h-title" class="text-2xl font-black">Чаты</h2>
-            <div id="h-avatar-wrap" class="relative">
-                <img id="h-avatar" class="w-10 h-10 rounded-full object-cover bg-zinc-900">
+    <div id="main-app" class="hidden flex flex-col h-full bg-[#0a0a0a]">
+        <header class="glass-header px-6 py-4 flex justify-between items-center z-50">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight">Чаты</h1>
+            </div>
+            <div id="h-avatar-wrap" class="relative tap-effect" onclick="switchTab('profile')">
+                <div id="admin-frame-h" class="">
+                    <img id="h-avatar" class="w-10 h-10 rounded-full object-cover bg-zinc-800">
+                </div>
             </div>
         </header>
 
-        <div id="tab-chats" class="flex-1 overflow-y-auto">
-            <div onclick="openChat('chat_8a')" class="p-4 flex items-center gap-4 active:bg-zinc-900 transition">
-                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-xl">8А</div>
-                <div class="flex-1 border-b border-zinc-900 pb-4">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold">Беседа 8А</span>
-                        <span class="text-[10px] text-blue-500 font-bold uppercase">Закреплено</span>
+        <div id="tab-chats" class="flex-1 overflow-y-auto space-y-1 py-2">
+            <div onclick="openChat('chat_8a')" class="px-6 py-4 flex items-center gap-4 active:bg-white/5 transition-all tap-effect">
+                <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span class="font-extrabold text-xl text-white">8А</span>
+                </div>
+                <div class="flex-1 border-b border-white/5 pb-4">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-[16px]">Беседа 8А</span>
+                        <span class="text-[10px] text-blue-500 font-extrabold uppercase bg-blue-500/10 px-2 py-0.5 rounded">Pin</span>
                     </div>
-                    <p class="text-sm text-zinc-500 truncate">Нажми, чтобы открыть чат класса</p>
+                    <p class="text-[13px] text-zinc-500 truncate font-medium">Добро пожаловать в чат класса!</p>
                 </div>
             </div>
         </div>
 
-        <div id="tab-profile" class="hidden flex-1 overflow-y-auto p-6 space-y-6">
-            <div class="flex flex-col items-center py-4">
-                <div id="p-avatar-box" class="w-28 h-28 rounded-3xl relative mb-4">
-                    <div id="p-admin-tag" class="admin-tag hidden">ADMIN</div>
-                    <img id="p-avatar" class="w-full h-full rounded-3xl object-cover bg-zinc-900">
+        <div id="tab-profile" class="hidden flex-1 overflow-y-auto p-8 space-y-8">
+            <div class="flex flex-col items-center">
+                <div id="p-avatar-box" class="w-32 h-32 rounded-[2.8rem] relative mb-6">
+                    <div id="p-admin-tag" class="admin-badge-mini hidden">ADMIN</div>
+                    <img id="p-avatar" class="w-full h-full rounded-[2.8rem] object-cover bg-zinc-900 border-2 border-white/10">
                 </div>
-                <h3 id="p-username" class="text-xl font-bold">...</h3>
-                <p id="p-userphone" class="text-zinc-500 text-xs">...</p>
+                <h3 id="p-username" class="text-2xl font-extrabold">...</h3>
+                <p id="p-userphone" class="text-zinc-500 text-sm font-medium mt-1">...</p>
             </div>
-            <div class="space-y-2">
-                <button onclick="editData('username')" class="w-full p-4 bg-zinc-900 rounded-2xl flex justify-between text-sm"><span>Никнейм</span><span class="text-blue-500">Изм.</span></button>
-                <button onclick="editData('password')" class="w-full p-4 bg-zinc-900 rounded-2xl flex justify-between text-sm"><span>Пароль</span><span class="text-blue-500">Изм.</span></button>
+            
+            <div class="space-y-3">
+                <div onclick="editData('username')" class="p-5 bg-white/5 rounded-2xl flex justify-between items-center tap-effect cursor-pointer">
+                    <span class="text-sm font-bold">Изменить имя</span>
+                    <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                </div>
+                <div onclick="editData('password')" class="p-5 bg-white/5 rounded-2xl flex justify-between items-center tap-effect cursor-pointer">
+                    <span class="text-sm font-bold">Сменить пароль</span>
+                    <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                </div>
+                <button onclick="logout()" class="w-full p-5 text-red-500 font-bold bg-red-500/10 rounded-2xl tap-effect">Выйти из аккаунта</button>
             </div>
-            <button onclick="logout()" class="w-full p-4 text-red-500 font-bold bg-red-500/10 rounded-2xl">Выйти из аккаунта</button>
         </div>
 
-        <nav class="glass flex justify-around p-3 pb-[calc(0.75rem+var(--sab))]">
-            <button onclick="switchTab('chats')" id="nav-c" class="p-2 text-blue-500"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></button>
-            <button onclick="switchTab('profile')" id="nav-p" class="p-2 text-zinc-600"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></button>
+        <nav class="glass-nav flex justify-around items-center px-10 py-3">
+            <button onclick="switchTab('chats')" id="nav-c" class="p-2 text-blue-500 tap-effect">
+                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-p" class="p-2 text-zinc-700 tap-effect">
+                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </button>
         </nav>
     </div>
 
-    <div id="chat-win" class="hidden fixed inset-0 z-[110] bg-black flex flex-col">
-        <header class="p-4 pt-[calc(1rem+var(--sat))] border-b border-zinc-900 flex items-center gap-4">
-            <button onclick="closeChat()" class="text-blue-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
-            <span class="font-bold">Беседа 8А</span>
+    <div id="chat-win" class="hidden fixed inset-0 z-[110] bg-black flex flex-col transition-transform duration-300">
+        <header class="glass-header px-4 py-4 flex items-center gap-4">
+            <button onclick="closeChat()" class="p-2 text-blue-500 tap-effect">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-xs">8А</div>
+                <div>
+                    <h3 class="font-bold text-sm">Беседа 8А</h3>
+                    <p class="text-[10px] text-green-500 font-bold">online</p>
+                </div>
+            </div>
         </header>
-        <div id="chat-flow" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3"></div>
-        <form id="chat-form" class="p-3 pb-[calc(0.75rem+var(--sab))] bg-zinc-900 flex gap-2">
-            <label class="p-3 text-blue-500"><input type="file" id="f-in" accept="image/*,video/*">📎</label>
-            <input type="text" id="m-in" class="flex-1 bg-black rounded-xl px-4 outline-none text-sm" placeholder="Сообщение...">
-            <button type="submit" class="bg-blue-600 p-3 rounded-xl">➤</button>
+
+        <div id="chat-flow" class="flex-1 overflow-y-auto p-4 flex flex-col gap-4"></div>
+
+        <form id="chat-form" class="p-4 bg-[#0a0a0a] border-t border-white/5 flex items-end gap-3 pb-[calc(1rem + var(--sab))]">
+            <label class="p-3 bg-zinc-900 rounded-2xl text-zinc-400 tap-effect">
+                <input type="file" id="f-in" class="hidden" accept="image/*,video/*">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            </label>
+            <div class="flex-1 bg-zinc-900 rounded-2xl px-4 py-3">
+                <input type="text" id="m-in" class="w-full bg-transparent outline-none text-sm" placeholder="Сообщение..." autocomplete="off">
+            </div>
+            <button type="submit" class="bg-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-600/20 tap-effect">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
         </form>
     </div>
 
@@ -113,29 +196,32 @@
         };
         const app = initializeApp(conf);
         const db = getDatabase(app);
-        let user = JSON.parse(localStorage.getItem('user_data')) || null;
+        
+        let user = JSON.parse(localStorage.getItem('user_data'));
         let isLogin = false;
 
-        // AUTH LOGIC
+        // AUTH
         if (user) startApp();
 
         document.getElementById('toggle-auth').onclick = () => {
             isLogin = !isLogin;
             document.getElementById('reg-fields').classList.toggle('hidden', isLogin);
-            document.getElementById('toggle-auth').innerText = isLogin ? "Нет аккаунта? Регистрация" : "Уже есть аккаунт? Войти";
+            document.getElementById('auth-btn-txt').innerText = isLogin ? "Войти" : "Продолжить";
+            document.getElementById('toggle-auth').innerHTML = isLogin ? 'Нет аккаунта? <span class="text-blue-500">Регистрация</span>' : 'Уже есть аккаунт? <span class="text-blue-500">Войти</span>';
         };
 
         document.getElementById('auth-form').onsubmit = async (e) => {
             e.preventDefault();
-            const ph = document.getElementById('reg-phone').value;
-            const ps = document.getElementById('reg-pass').value;
-            const ni = document.getElementById('reg-nick').value;
+            const ph = document.getElementById('reg-phone').value.trim();
+            const ps = document.getElementById('reg-pass').value.trim();
+            const ni = document.getElementById('reg-nick').value.trim();
             
             if (isLogin) {
                 const s = await get(child(ref(db), `users/${ph}`));
                 if (s.exists() && s.val().password === ps) login(ph, s.val());
-                else Swal.fire('Ошибка', 'Неверный вход', 'error');
+                else Swal.fire('Ошибка', 'Неверный телефон или пароль', 'error');
             } else {
+                if (!ni || !ph) return Swal.fire('Стоп', 'Заполни имя и номер', 'warning');
                 const data = { username: ni, password: ps, photo: "", role: (ph === "+79225941382" ? "admin" : "user") };
                 await set(ref(db, `users/${ph}`), data);
                 login(ph, data);
@@ -143,22 +229,26 @@
         };
 
         function login(ph, d) {
-            const fullData = { ...d, phone: ph };
-            localStorage.setItem('user_data', JSON.stringify(fullData));
+            localStorage.setItem('user_data', JSON.stringify({ ...d, phone: ph }));
             location.reload();
         }
 
         function startApp() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('h-avatar').src = user.photo || "favicon.png";
-            document.getElementById('p-avatar').src = user.photo || "favicon.png";
+            document.getElementById('auth-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+            }, 300);
+            
+            document.getElementById('h-avatar').src = user.photo || 'favicon.png';
+            document.getElementById('p-avatar').src = user.photo || 'favicon.png';
             document.getElementById('p-username').innerText = user.username;
             document.getElementById('p-userphone').innerText = user.phone;
+
             if (user.role === 'admin') {
-                document.getElementById('p-avatar-box').classList.add('admin-frame');
+                document.getElementById('p-avatar-box').classList.add('admin-glow');
                 document.getElementById('p-admin-tag').classList.remove('hidden');
-                document.getElementById('h-avatar-wrap').classList.add('admin-frame', 'rounded-full');
+                document.getElementById('admin-frame-h').classList.add('admin-glow');
             }
         }
 
@@ -166,91 +256,85 @@
         window.switchTab = (t) => {
             document.getElementById('tab-chats').classList.toggle('hidden', t !== 'chats');
             document.getElementById('tab-profile').classList.toggle('hidden', t !== 'profile');
-            document.getElementById('h-title').innerText = t === 'chats' ? 'Чаты' : 'Профиль';
-            document.getElementById('nav-c').classList.toggle('text-blue-500', t === 'chats');
-            document.getElementById('nav-p').classList.toggle('text-blue-500', t === 'profile');
+            document.getElementById('nav-c').className = t === 'chats' ? 'p-2 text-blue-500 tap-effect' : 'p-2 text-zinc-700 tap-effect';
+            document.getElementById('nav-p').className = t === 'profile' ? 'p-2 text-blue-500 tap-effect' : 'p-2 text-zinc-700 tap-effect';
         };
 
-        // CHAT LOGIC
-        let chatRef = null;
+        // CHAT ENGINE
+        let currentChatRef = null;
         window.openChat = (id) => {
             document.getElementById('chat-win').classList.remove('hidden');
             document.getElementById('chat-flow').innerHTML = "";
-            if (chatRef) off(chatRef);
-            chatRef = ref(db, `messages/${id}`);
+            if (currentChatRef) off(currentChatRef);
             
-            onChildAdded(chatRef, (s) => renderMsg(s.key, s.val()));
-            onChildRemoved(chatRef, (s) => document.getElementById(s.key)?.remove());
-            onChildChanged(chatRef, (s) => {
+            currentChatRef = ref(db, `messages/${id}`);
+            onChildAdded(currentChatRef, (s) => renderMessage(s.key, s.val()));
+            onChildRemoved(currentChatRef, (s) => document.getElementById(s.key)?.remove());
+            onChildChanged(currentChatRef, (s) => {
                 const el = document.getElementById(s.key);
                 if (el) el.querySelector('.msg-text').innerText = s.val().text;
             });
         };
 
-        function renderMsg(key, m) {
+        function renderMessage(id, m) {
             const isMe = m.phone === user.phone;
             const html = `
-                <div id="${key}" class="flex flex-col ${isMe ? 'items-end' : 'items-start'}" oncontextmenu="return false;">
-                    <div class="msg-bubble p-3 ${isMe ? 'my-msg' : 'other-msg'}" data-key="${key}" data-text="${m.text}" data-owner="${isMe}">
-                        ${!isMe ? `<span class="text-[10px] font-bold text-blue-400 block mb-1">${m.name}</span>` : ''}
-                        ${m.file ? `<img src="${m.file}" class="rounded-lg mb-2 max-h-48 object-cover">` : ''}
-                        <span class="msg-text text-sm">${m.text}</span>
-                        <span class="text-[9px] opacity-40 block text-right mt-1">${m.time}</span>
+                <div id="${id}" class="flex flex-col ${isMe ? 'items-end' : 'items-start'} animate-slide">
+                    <div class="msg-bubble ${isMe ? 'my-msg' : 'other-msg'}" 
+                         data-id="${id}" data-text="${m.text}" data-me="${isMe}">
+                        ${!isMe ? `<span class="text-[10px] font-extrabold text-blue-400 block mb-1 uppercase tracking-wider">${m.name}</span>` : ''}
+                        ${m.file ? `<img src="${m.file}" class="rounded-xl mb-2 w-full max-h-60 object-cover">` : ''}
+                        <span class="msg-text">${m.text}</span>
+                        <span class="text-[9px] opacity-40 block text-right mt-2 font-bold">${m.time}</span>
                     </div>
                 </div>
             `;
-            document.getElementById('chat-flow').insertAdjacentHTML('beforeend', html);
-            document.getElementById('chat-flow').scrollTo(0, document.getElementById('chat-flow').scrollHeight);
+            const flow = document.getElementById('chat-flow');
+            flow.insertAdjacentHTML('beforeend', html);
+            flow.scrollTo(0, flow.scrollHeight);
         }
 
-        // LONG PRESS HANDLER
-        let pressTimer;
+        // LONG PRESS (DELETE/EDIT)
+        let timer;
         document.addEventListener('touchstart', (e) => {
-            const bubble = e.target.closest('.msg-bubble');
-            if (bubble) {
-                pressTimer = setTimeout(() => handleLongPress(bubble), 800);
-            }
+            const b = e.target.closest('.msg-bubble');
+            if (b) timer = setTimeout(() => showMenu(b), 700);
         });
-        document.addEventListener('touchend', () => clearTimeout(pressTimer));
+        document.addEventListener('touchend', () => clearTimeout(timer));
 
-        async function handleLongPress(el) {
-            const key = el.dataset.key;
-            const isMe = el.dataset.owner === "true" || user.role === 'admin';
+        async function showMenu(el) {
+            const id = el.dataset.id;
+            const isMe = el.dataset.me === "true" || user.role === 'admin';
             
-            const actions = { 'copy': 'Копировать' };
-            if (isMe) {
-                actions['edit'] = 'Изменить';
-                actions['delete'] = 'Удалить у всех';
-            }
-
-            const { value: action } = await Swal.fire({
-                background: '#1c1c1e', color: '#fff',
+            const { value: act } = await Swal.fire({
+                background: '#111', color: '#fff',
                 showConfirmButton: false,
-                html: Object.entries(actions).map(([k, v]) => 
-                    `<button onclick="Swal.clickConfirm(); window.doAction('${k}','${key}','${el.dataset.text}')" class="w-full p-4 text-left border-b border-zinc-800 last:border-0">${v}</button>`
-                ).join('')
+                html: `
+                    <div class="flex flex-col text-left">
+                        <button onclick="Swal.clickConfirm(); copy('${el.dataset.text}')" class="p-4 border-b border-white/5">Копировать</button>
+                        ${isMe ? `<button onclick="Swal.clickConfirm(); editMsg('${id}','${el.dataset.text}')" class="p-4 border-b border-white/5 text-blue-500">Изменить</button>` : ''}
+                        ${isMe ? `<button onclick="Swal.clickConfirm(); delMsg('${id}')" class="p-4 text-red-500">Удалить у всех</button>` : ''}
+                    </div>
+                `
             });
         }
 
-        window.doAction = async (act, key, oldText) => {
-            if (act === 'delete') await remove(ref(db, `messages/chat_8a/${key}`));
-            if (act === 'edit') {
-                const { value: newT } = await Swal.fire({ title: 'Изменить', input: 'text', inputValue: oldText, background:'#111', color:'#fff' });
-                if (newT) await update(ref(db, `messages/chat_8a/${key}`), { text: newT });
-            }
-            if (act === 'copy') navigator.clipboard.writeText(oldText);
+        window.copy = (t) => navigator.clipboard.writeText(t);
+        window.delMsg = (id) => remove(ref(db, `messages/chat_8a/${id}`));
+        window.editMsg = async (id, old) => {
+            const { value: nt } = await Swal.fire({ input: 'text', inputValue: old, background:'#111', color:'#fff' });
+            if (nt) update(ref(db, `messages/chat_8a/${id}`), { text: nt });
         };
 
         document.getElementById('chat-form').onsubmit = async (e) => {
             e.preventDefault();
             const input = document.getElementById('m-in');
             const file = document.getElementById('f-in').files[0];
-            const text = input.value.trim();
-            if (!text && !file) return;
+            if (!input.value.trim() && !file) return;
 
-            const send = (f = "") => {
+            const pushMsg = (f = "") => {
                 push(ref(db, `messages/chat_8a`), {
-                    phone: user.phone, name: user.username, text, file: f,
+                    phone: user.phone, name: user.username, text: input.value, file: f,
                     time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
                 });
                 input.value = ""; document.getElementById('f-in').value = "";
@@ -258,19 +342,18 @@
 
             if (file) {
                 const r = new FileReader();
-                r.onload = () => send(r.result);
+                r.onload = () => pushMsg(r.result);
                 r.readAsDataURL(file);
-            } else send();
+            } else pushMsg();
         };
 
-        window.closeChat = () => { document.getElementById('chat-win').classList.add('hidden'); off(chatRef); };
+        window.closeChat = () => { document.getElementById('chat-win').classList.add('hidden'); off(currentChatRef); };
         window.logout = () => { localStorage.clear(); location.reload(); };
         window.editData = async (f) => {
             const { value: v } = await Swal.fire({ title: `Новый ${f}`, input: 'text', background: '#111', color: '#fff' });
             if (v) {
                 await update(ref(db, `users/${user.phone}`), { [f]: v });
-                user[f] = v;
-                localStorage.setItem('user_data', JSON.stringify(user));
+                user[f] = v; localStorage.setItem('user_data', JSON.stringify(user));
                 location.reload();
             }
         };
