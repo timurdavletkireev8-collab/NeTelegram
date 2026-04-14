@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>NeTelegram V2</title>
+<title>NeTelegram</title>
+
+<link rel="icon" href="favicon.png">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -18,88 +20,128 @@
 --muted:#8e8e93;
 }
 
-*{margin:0;padding:0;box-sizing:border-box}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
-background:#000;
-color:#fff;
-font-family:-apple-system,Segoe UI,Roboto;
+background:var(--bg);
+color:var(--text);
+font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;
 height:100dvh;
 overflow:hidden;
 }
 
-/* layout */
-.app{display:flex;flex-direction:column;height:100dvh}
+/* LAYOUT */
+.app{
+display:flex;
+flex-direction:column;
+height:100dvh;
+}
 
-/* header */
+/* HEADER */
 .header{
 position:sticky;
 top:0;
 z-index:10;
-background:var(--glass);
 backdrop-filter:blur(16px);
-padding:14px;
+background:var(--glass);
 border-bottom:1px solid var(--border);
+padding:14px;
 display:flex;
 align-items:center;
-justify-content:space-between;
+gap:10px;
 }
+.header img{width:26px;height:26px}
+.header span{font-weight:600}
 
-/* tabs */
+/* TABS */
 .tabs{display:flex;background:var(--glass)}
 .tab{
-flex:1;text-align:center;padding:12px;font-size:13px;color:var(--muted);cursor:pointer
+flex:1;
+text-align:center;
+padding:12px;
+font-size:13px;
+color:var(--muted);
+cursor:pointer;
+transition:.2s;
 }
-.tab.active{color:var(--accent);border-bottom:2px solid var(--accent)}
+.tab.active{
+color:var(--accent);
+border-bottom:2px solid var(--accent);
+}
 
-/* pages */
-.page{flex:1;overflow:auto;padding:12px;display:none}
+/* PAGES */
+.page{
+flex:1;
+overflow:auto;
+padding:12px;
+display:none;
+}
 .page.active{display:block}
 
-/* chat list */
+/* CHAT LIST */
 .chat{
-padding:14px;
-border-radius:14px;
-background:#111;
-margin-bottom:10px;
+background:rgba(255,255,255,0.02);
+padding:16px;
+border-radius:16px;
 border:1px solid var(--border);
+margin-bottom:10px;
 cursor:pointer;
+transition:.2s;
 }
-.chat-title{font-size:14px}
-.chat-last{font-size:12px;color:var(--muted);margin-top:4px}
-.chat-status{font-size:11px;color:var(--accent);margin-top:2px}
+.chat:hover{background:rgba(255,255,255,0.04)}
 
-/* chat window */
-.chat-win{
-position:fixed;inset:0;
+.chat-title{font-size:14px;font-weight:500}
+.chat-last{
+font-size:12px;
+color:var(--muted);
+margin-top:4px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+/* CHAT WINDOW */
+.chat-window{
+position:fixed;
+inset:0;
 background:#000;
 display:none;
 flex-direction:column;
+z-index:20;
 }
-.chat-win.active{display:flex}
+.chat-window.active{display:flex}
 
-/* messages */
+/* MESSAGES */
 .messages{
 flex:1;
 overflow:auto;
-padding:10px;
+padding:12px;
 display:flex;
 flex-direction:column;
 gap:10px;
+scroll-behavior:smooth;
 }
 
 .msg{
 max-width:75%;
-padding:10px;
-border-radius:14px;
+padding:10px 12px;
+border-radius:16px;
 font-size:13px;
+animation:fade .2s ease;
 }
 
-.mine{align-self:flex-end;background:var(--accent)}
-.other{align-self:flex-start;background:#1c1c1d}
+.mine{
+align-self:flex-end;
+background:var(--accent);
+}
+.other{
+align-self:flex-start;
+background:#1c1c1d;
+}
 
-.time{font-size:10px;color:#aaa;margin-top:4px;text-align:right}
+.msg-name{font-size:10px;color:#aaa;margin-bottom:3px}
+.msg-time{font-size:9px;color:#aaa;margin-top:4px;text-align:right}
 
-/* input */
+/* INPUT */
 .input{
 display:flex;
 gap:8px;
@@ -111,37 +153,51 @@ border-top:1px solid var(--border);
 .input input{
 flex:1;
 padding:12px;
-border-radius:10px;
+border-radius:12px;
 border:none;
 background:#1c1c1d;
 color:#fff;
+outline:none;
 }
 .input button{
 background:var(--accent);
 border:none;
 padding:12px;
-border-radius:10px;
+border-radius:12px;
 color:#fff;
+cursor:pointer;
 }
 
-/* typing */
-.typing{
-font-size:12px;
-color:var(--muted);
-padding:5px 10px;
-}
-
-/* modal */
+/* MODAL */
 .modal{
-position:fixed;inset:0;background:#000;
-display:flex;align-items:center;justify-content:center;
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:50;
 }
 .box{
 background:#1c1c1d;
 padding:20px;
-border-radius:14px;
+border-radius:16px;
 width:80%;
 text-align:center;
+}
+.box input{
+margin-top:10px;
+padding:10px;
+width:100%;
+border-radius:10px;
+border:none;
+background:#2a2a2a;
+color:#fff;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(5px)}
+to{opacity:1}
 }
 </style>
 </head>
@@ -150,7 +206,10 @@ text-align:center;
 
 <div class="app">
 
-<div class="header">NeTelegram</div>
+<div class="header">
+<img src="favicon.png">
+<span>NeTelegram</span>
+</div>
 
 <div class="tabs">
 <div class="tab active" onclick="tab(event,'chats')">ЧАТЫ</div>
@@ -158,35 +217,35 @@ text-align:center;
 </div>
 
 <div id="chats" class="page active">
-<div class="chat" onclick="openChat('8a')">
+<div class="chat" onclick="openChat()">
 <div class="chat-title">БЕСЕДА 8А</div>
-<div id="last_8a" class="chat-last"></div>
-<div id="status_8a" class="chat-status"></div>
+<div id="lastMsg" class="chat-last">Загрузка...</div>
 </div>
 </div>
 
 <div id="diary" class="page">
-<button onclick="window.open('https://one.astrobl.ru/authorize')">ОТКРЫТЬ</button>
+<button onclick="window.open('https://one.astrobl.ru/authorize')">ОТКРЫТЬ ДНЕВНИК</button>
 </div>
 
 </div>
 
 <!-- CHAT -->
-<div id="chatWin" class="chat-win">
+<div id="chatWin" class="chat-window">
+
 <div class="header">
 <div onclick="closeChat()" style="cursor:pointer;color:#0088cc">Назад</div>
 </div>
 
 <div id="msgs" class="messages"></div>
-<div id="typing" class="typing"></div>
 
 <div class="input">
 <input id="text">
 <button onclick="send()">OK</button>
 </div>
+
 </div>
 
-<!-- modal -->
+<!-- MODAL -->
 <div id="modal" class="modal" style="display:none">
 <div class="box">
 Введите имя
@@ -201,19 +260,16 @@ const firebaseConfig={
 apiKey:"AIzaSyDtbTs3c5EEU0AdWXDw4qxCmwDwBJVtMwY",
 authDomain:"netelegram-d8c52.firebaseapp.com",
 databaseURL:"https://netelegram-d8c52-default-rtdb.firebaseio.com",
-projectId:"netelegram-d8c52"
+projectId:"netelegram-d8c52",
+storageBucket:"netelegram-d8c52.firebasestorage.app",
+messagingSenderId:"214817548440",
+appId:"1:214817548440:web:05e6113620f7ce7a9548ed"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
 let user=localStorage.getItem('name');
-let uid=localStorage.getItem('uid');
-
-if(!uid){
-uid='u'+Math.random().toString(36).slice(2);
-localStorage.setItem('uid',uid);
-}
 
 if(!user){
 document.getElementById('modal').style.display='flex';
@@ -222,20 +278,11 @@ document.getElementById('modal').style.display='flex';
 function save(){
 let n=document.getElementById('name').value.trim();
 if(n){
-user=n;
 localStorage.setItem('name',n);
+user=n;
 document.getElementById('modal').style.display='none';
-initPresence();
 }
 }
-
-/* presence */
-function initPresence(){
-let ref=db.ref('presence/'+uid);
-ref.set({name:user,online:true});
-ref.onDisconnect().set({name:user,online:false});
-}
-if(user) initPresence();
 
 /* tabs */
 function tab(e,id){
@@ -246,89 +293,60 @@ document.getElementById(id).classList.add('active');
 }
 
 /* chat */
-let currentChat='8a';
-
-function openChat(id){
-currentChat=id;
+function openChat(){
 document.getElementById('chatWin').classList.add('active');
-loadMessages();
+setTimeout(scrollBottom,200);
 }
-
 function closeChat(){
 document.getElementById('chatWin').classList.remove('active');
 }
 
 /* send */
 function send(){
-let txt=document.getElementById('text').value.trim();
+let input=document.getElementById('text');
+let txt=input.value.trim();
 if(!txt)return;
 
-db.ref('chats/'+currentChat+'/messages').push({
-uid,
+db.ref('messages').push({
 name:user,
 text:txt,
 time:firebase.database.ServerValue.TIMESTAMP
 });
 
-document.getElementById('text').value='';
+input.value='';
 }
 
-/* typing */
-let typingRef=db.ref('typing/'+currentChat+'/'+uid);
-
-document.getElementById('text').addEventListener('input',()=>{
-typingRef.set(true);
-setTimeout(()=>typingRef.set(false),1500);
-});
-
-db.ref('typing/'+currentChat).on('value',snap=>{
-let data=snap.val()||{};
-let users=Object.keys(data).filter(id=>data[id] && id!==uid);
-document.getElementById('typing').innerText = users.length ? 'печатает...' : '';
-});
-
-/* messages */
-function loadMessages(){
+/* realtime */
 const msgs=document.getElementById('msgs');
-msgs.innerHTML='';
 
-db.ref('chats/'+currentChat+'/messages').limitToLast(100)
-.on('child_added',snap=>{
+db.ref('messages').limitToLast(100).on('child_added',snap=>{
 let m=snap.val();
 
 let el=document.createElement('div');
-el.className='msg '+(m.uid===uid?'mine':'other');
+el.className='msg '+(m.name===user?'mine':'other');
 
 el.innerHTML=`
+<div class="msg-name">${m.name}</div>
 <div>${m.text}</div>
-<div class="time">${new Date(m.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+<div class="msg-time">${new Date(m.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
 `;
 
 msgs.appendChild(el);
-scroll();
+
 updateLast(m);
+
+setTimeout(scrollBottom,100);
 });
-}
 
 /* last message */
 function updateLast(m){
-document.getElementById('last_8a').innerText = m.name+': '+m.text;
+document.getElementById('lastMsg').innerText = m.name + ': ' + m.text;
 }
 
 /* scroll */
-function scroll(){
-setTimeout(()=>{
-let el=document.getElementById('msgs');
-el.scrollTop=el.scrollHeight;
-},100);
+function scrollBottom(){
+msgs.scrollTop = msgs.scrollHeight;
 }
-
-/* presence UI */
-db.ref('presence').on('value',snap=>{
-let users=snap.val()||{};
-let online=Object.values(users).filter(u=>u.online).length;
-document.getElementById('status_8a').innerText = 'онлайн: '+online;
-});
 </script>
 
 </body>
