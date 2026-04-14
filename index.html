@@ -14,207 +14,231 @@
             --accent-gradient: linear-gradient(180deg, #007AFF 0%, #0051FF 100%);
             --text: #fff;
             --text-secondary: #8E8E93;
-            --glass: rgba(18, 18, 18, 0.8);
+            --glass: rgba(18, 18, 18, 0.85);
             --border: rgba(255, 255, 255, 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; }
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* --- ЭКРАН РЕГИСТРАЦИИ --- */
+        /* --- AUTH --- */
         #auth-screen {
-            position: fixed; inset: 0; background: var(--bg); z-index: 1000;
+            position: fixed; inset: 0; background: var(--bg); z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px;
         }
-        .auth-card {
-            width: 100%; max-width: 350px; text-align: center;
-        }
-        .auth-logo { width: 80px; height: 80px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,122,255,0.4); }
         .auth-input {
             width: 100%; background: var(--surface); border: 1px solid var(--border);
             padding: 16px; border-radius: 15px; color: #fff; font-size: 16px; margin-bottom: 12px; outline: none;
         }
         .auth-btn {
             width: 100%; background: var(--accent-gradient); border: none; padding: 16px;
-            border-radius: 15px; color: #fff; font-size: 17px; font-weight: 700; cursor: pointer;
+            border-radius: 15px; color: #fff; font-size: 17px; font-weight: 700;
         }
 
-        /* --- ГЛАВНЫЙ ИНТЕРФЕЙС --- */
+        /* --- HEADER --- */
         header {
             padding: 55px 20px 15px; background: var(--glass); backdrop-filter: blur(20px);
             border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 12px;
         }
         header img { width: 32px; height: 32px; border-radius: 8px; }
-        header span { font-weight: 800; font-size: 20px; }
 
-        main { flex: 1; overflow-y: auto; padding: 10px 16px 120px; height: calc(100vh - 150px); }
-        .section-title { font-size: 32px; font-weight: 700; margin: 15px 0; }
+        main { flex: 1; height: calc(100vh - 160px); overflow-y: auto; padding: 10px 16px; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.2s ease; }
 
+        /* --- CHAT LIST --- */
         .chat-card {
-            background: var(--surface); padding: 15px; border-radius: 22px;
+            background: var(--surface); padding: 16px; border-radius: 22px;
             display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border: 0.5px solid var(--border);
         }
         .avatar { width: 55px; height: 55px; border-radius: 18px; background: var(--accent-gradient); 
                   display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; }
-        
-        /* --- ОКНО ЧАТА (ОТКРЫТОЕ) --- */
-        #chat-window {
-            position: fixed; inset: 0; background: var(--bg); z-index: 500;
-            display: none; flex-direction: column;
-        }
-        .chat-header {
-            padding: 50px 20px 15px; background: var(--surface); display: flex; align-items: center; gap: 15px;
-        }
-        .back-btn { font-size: 24px; color: var(--accent); cursor: pointer; }
-        .messages-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .msg-bubble { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 15px; line-height: 1.4; }
-        .msg-remote { background: var(--surface); align-self: flex-start; }
-        .msg-own { background: var(--accent); align-self: flex-end; }
-        
-        .input-area {
-            padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
-            background: var(--glass); backdrop-filter: blur(20px); display: flex; gap: 10px;
-        }
+        .last-msg { color: var(--text-secondary); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-top: 4px;}
 
-        /* --- ТАББАР --- */
+        /* --- PROFILE --- */
+        .profile-container { text-align: center; padding: 20px 0; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 30px; background: var(--accent-gradient); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        .profile-info { background: var(--surface); border-radius: 20px; padding: 20px; margin-bottom: 20px; text-align: left; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+        .logout-btn { color: #FF3B30; font-weight: 600; padding: 15px; cursor: pointer; }
+
+        /* --- CHAT WINDOW --- */
+        #chat-window { position: fixed; inset: 0; background: var(--bg); z-index: 1500; display: none; flex-direction: column; }
+        .chat-header { padding: 50px 20px 15px; background: var(--surface); display: flex; align-items: center; gap: 15px; border-bottom: 0.5px solid var(--border); }
+        .messages-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg-bubble { padding: 10px 16px; border-radius: 18px; max-width: 80%; font-size: 15px; position: relative; }
+        .msg-remote { background: var(--surface); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg-own { background: var(--accent); align-self: flex-end; border-bottom-right-radius: 4px; }
+
+        /* --- TABBAR --- */
         .tabbar {
             position: fixed; bottom: 0; width: 100%; background: var(--glass);
             backdrop-filter: blur(25px); border-top: 0.5px solid var(--border);
-            display: flex; padding: 10px 0 30px; justify-content: space-around;
+            display: flex; padding: 10px 0 35px; justify-content: space-around;
         }
-        .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 11px; text-decoration: none; }
+        .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 11px; text-decoration: none; width: 33%; }
         .tab-item.active { color: var(--accent); }
-        .tab-item svg { width: 26px; height: 26px; fill: currentColor; margin-bottom: 4px; }
+        .tab-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <div class="auth-card">
-            <img src="favicon.png" class="auth-logo">
-            <h2 style="margin-bottom: 10px;">Добро пожаловать</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 30px;">Введите данные для входа в NeTelegram</p>
-            <input type="text" id="reg-nick" class="auth-input" placeholder="Никнейм">
-            <input type="tel" id="reg-phone" class="auth-input" placeholder="Номер телефона">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Пароль">
-            <button class="auth-btn" onclick="registerUser()">Создать аккаунт</button>
-        </div>
+        <img src="favicon.png" style="width: 80px; margin-bottom: 20px; border-radius: 20px;">
+        <h2 style="margin-bottom: 30px;">Вход в NeTelegram</h2>
+        <input type="text" id="reg-nick" class="auth-input" placeholder="Ваше имя">
+        <input type="tel" id="reg-phone" class="auth-input" placeholder="Номер телефона">
+        <button class="auth-btn" onclick="register()">Начать общение</button>
     </div>
 
     <header>
         <img src="favicon.png">
-        <span>NeTelegram</span>
+        <span id="header-title">Чаты</span>
     </header>
 
-    <main id="main-list">
-        <h1 class="section-title">Чаты</h1>
-        <div class="chat-card" onclick="openChat('8А')">
-            <div class="avatar">8А</div>
-            <div style="flex:1">
-                <div style="display:flex; justify-content:space-between">
-                    <b>БЕСЕДА 8А 📌</b>
-                    <span style="color:var(--text-secondary); font-size:12px">14:51</span>
+    <main>
+        <div id="page-chats" class="page active">
+            <div id="chat-list-container">
+                <div class="chat-card" onclick="openChat('Общий чат')">
+                    <div class="avatar">💬</div>
+                    <div style="flex:1; min-width: 0;">
+                        <div style="display:flex; justify-content:space-between">
+                            <b>Общий чат 📌</b>
+                        </div>
+                        <span class="last-msg" id="last-msg-text">Загрузка...</span>
+                    </div>
                 </div>
-                <p style="color:var(--text-secondary); font-size:14px">Александр: Дз по физике...</p>
+            </div>
+        </div>
+
+        <div id="page-profile" class="page">
+            <div class="profile-container">
+                <div class="profile-avatar" id="p-avatar-char">?</div>
+                <h2 id="p-nick">Username</h2>
+                <p style="color:var(--text-secondary)" id="p-phone">+7 000 000 0000</p>
+            </div>
+            <div class="profile-info">
+                <div class="info-row"><span>Уведомления</span><span style="color:var(--accent)">Вкл</span></div>
+                <div class="info-row"><span>Конфиденциальность</span><span>></span></div>
+                <div class="logout-btn" onclick="logout()">Выйти из аккаунта</div>
             </div>
         </div>
     </main>
 
     <div id="chat-window">
         <div class="chat-header">
-            <span class="back-btn" onclick="closeChat()">❮</span>
-            <div class="avatar" style="width:40px; height:40px; font-size:14px" id="chat-icon">8А</div>
-            <b id="chat-name">Беседа 8А</b>
+            <span style="font-size: 24px; color: var(--accent);" onclick="closeChat()">❮</span>
+            <div class="avatar" style="width:35px; height:35px; font-size:14px">💬</div>
+            <b id="active-chat-name">Чат</b>
         </div>
-        <div class="messages-area" id="msg-container">
-            <div class="msg-bubble msg-remote">Привет всем! Это NeTelegram 🚀</div>
-        </div>
-        <div class="input-area">
+        <div class="messages-area" id="msg-container"></div>
+        <div style="padding: 10px 20px 40px; display: flex; gap: 10px; background: var(--glass);">
             <input type="text" id="msg-input" class="auth-input" style="margin-bottom:0" placeholder="Сообщение...">
-            <button class="auth-btn" style="width:60px" onclick="sendMsg()">></button>
+            <button class="auth-btn" style="width:60px" onclick="sendMessage()">></button>
         </div>
     </div>
 
     <nav class="tabbar">
-        <div class="tab-item active"><svg viewBox="0 0 24 24"><path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"/></svg>Чаты</div>
-        <div class="tab-item"><svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM12 11H7V13H12V11Z"/></svg>Дневник</div>
+        <div class="tab-item active" onclick="switchTab('chats', this)">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"/></svg>Чаты
+        </div>
+        <div class="tab-item" onclick="switchTab('profile', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 5C13.66 5 15 6.34 15 8C15 9.66 13.66 11 12 11C10.34 11 9 9.66 9 8C9 6.34 10.34 5 12 5ZM12 19.2C9.5 19.2 7.29 17.92 6 15.98C6.03 13.99 10 12.9 12 12.9C13.99 12.9 17.97 13.99 18 15.98C16.71 17.92 14.5 19.2 12 19.2Z"/></svg>Профиль
+        </div>
     </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDtbTs3c5EEU0AdWXDw4qxCmwDwBJVtMwY",
             authDomain: "netelegram-d8c52.firebaseapp.com",
             projectId: "netelegram-d8c52",
-            storageBucket: "netelegram-d8c52.firebasestorage.app",
-            messagingSenderId: "214817548440",
             appId: "1:214817548440:web:05e6113620f7ce7a9548ed"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- ЛОГИКА РЕГИСТРАЦИИ ---
-        window.registerUser = async () => {
+        // --- AUTH ---
+        window.register = async () => {
             const nick = document.getElementById('reg-nick').value;
             const phone = document.getElementById('reg-phone').value;
-            if(!nick || !phone) return alert("Заполни поля!");
-
-            localStorage.setItem('userNick', nick);
-            document.getElementById('auth-screen').style.display = 'none';
-            
-            // Сохраняем юзера в базу
-            await setDoc(doc(db, "users", phone), { nickname: nick, phone: phone });
+            if(!nick || !phone) return;
+            localStorage.setItem('nick', nick);
+            localStorage.setItem('phone', phone);
+            await setDoc(doc(db, "users", phone), { nick, phone });
+            location.reload();
         };
 
-        // Проверка входа
-        if(localStorage.getItem('userNick')) {
+        if(localStorage.getItem('nick')) {
             document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('p-nick').innerText = localStorage.getItem('nick');
+            document.getElementById('p-phone').innerText = localStorage.getItem('phone');
+            document.getElementById('p-avatar-char').innerText = localStorage.getItem('nick')[0];
         }
 
-        // --- ЛОГИКА ЧАТА ---
+        window.logout = () => { localStorage.clear(); location.reload(); };
+
+        // --- NAVIGATION ---
+        window.switchTab = (id, el) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById('page-' + id).classList.add('active');
+            el.classList.add('active');
+            document.getElementById('header-title').innerText = id === 'chats' ? 'Чаты' : 'Настройки';
+        };
+
+        // --- REAL CHAT LOGIC ---
         window.openChat = (name) => {
             document.getElementById('chat-window').style.display = 'flex';
-            document.getElementById('chat-name').innerText = name;
+            document.getElementById('active-chat-name').innerText = name;
             loadMessages();
         };
 
-        window.closeChat = () => {
-            document.getElementById('chat-window').style.display = 'none';
-        };
+        window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; };
 
-        window.sendMsg = async () => {
+        window.sendMessage = async () => {
             const input = document.getElementById('msg-input');
             if(!input.value) return;
-
             await addDoc(collection(db, "messages"), {
                 text: input.value,
-                user: localStorage.getItem('userNick'),
-                time: Date.now()
+                user: localStorage.getItem('nick'),
+                timestamp: Date.now()
             });
             input.value = "";
         };
 
+        // Подгрузка сообщений и последнего сообщения для меню
         function loadMessages() {
-            const q = query(collection(db, "messages"), orderBy("time", "asc"));
-            onSnapshot(q, (snapshot) => {
+            const q = query(collection(db, "messages"), orderBy("timestamp", "asc"));
+            onSnapshot(q, (snap) => {
                 const container = document.getElementById('msg-container');
                 container.innerHTML = "";
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const isOwn = data.user === localStorage.getItem('userNick');
-                    container.innerHTML += `
-                        <div class="msg-bubble ${isOwn ? 'msg-own' : 'msg-remote'}">
-                            <small style="display:block; font-size:10px; opacity:0.6">${data.user}</small>
-                            ${data.text}
-                        </div>
-                    `;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const isOwn = d.user === localStorage.getItem('nick');
+                    container.innerHTML += `<div class="msg-bubble ${isOwn ? 'msg-own' : 'msg-remote'}">
+                        <small style="opacity:0.5; font-size:10px; display:block">${d.user}</small>${d.text}</div>`;
                 });
                 container.scrollTop = container.scrollHeight;
             });
         }
+
+        // Слушаем последнее сообщение для главного экрана
+        const lastMsgQuery = query(collection(db, "messages"), orderBy("timestamp", "desc"), limit(1));
+        onSnapshot(lastMsgQuery, (snap) => {
+            const lastMsgEl = document.getElementById('last-msg-text');
+            if(!snap.empty) {
+                const d = snap.docs[0].data();
+                lastMsgEl.innerText = `${d.user}: ${d.text}`;
+            } else {
+                lastMsgEl.innerText = "Сообщений пока нет";
+            }
+        });
     </script>
 </body>
 </html>
