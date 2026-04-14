@@ -3,58 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Messenger</title>
+    <title>Class App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        input { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; }
+        body { background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .auth-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        input { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; }
         .hidden { display: none; }
+        .custom-file-upload { border: 1px dashed #334155; cursor: pointer; transition: 0.3s; }
+        .custom-file-upload:hover { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen">
 
-    <div id="auth-container" class="glass p-8 rounded-2xl w-full max-w-md shadow-2xl">
-        <div class="text-center mb-8">
-            <h1 id="auth-title" class="text-3xl font-bold tracking-tight">Создать аккаунт</h1>
-            <p id="auth-subtitle" class="text-slate-400 mt-2">Мессенджер для нашего класса</p>
+    <div id="auth-container" class="auth-card p-8 rounded-3xl w-full max-w-sm shadow-2xl transition-all">
+        <div class="text-center mb-6">
+            <h1 id="auth-title" class="text-2xl font-bold">Регистрация</h1>
+            <p id="auth-subtitle" class="text-slate-500 text-sm mt-1">Мессенджер нашего класса</p>
         </div>
 
         <form id="auth-form" class="space-y-4">
-            <div id="nickname-group">
-                <label class="block text-sm font-medium mb-1">Никнейм</label>
-                <input type="text" id="reg-nickname" class="w-full p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Напр. tima">
+            <div id="reg-fields" class="space-y-4">
+                <div>
+                    <input type="text" id="node-nick" class="w-full p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ваш никнейм">
+                </div>
+                <div class="relative">
+                    <label class="custom-file-upload flex items-center justify-center p-3 rounded-xl text-sm text-slate-400">
+                        <input type="file" id="node-photo" class="hidden" accept="image/*">
+                        <span id="file-name">Выбрать фото профиля</span>
+                    </label>
+                </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium mb-1">Номер телефона</label>
-                <input type="tel" id="reg-phone" class="w-full p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="+79000000000" required>
+                <input type="tel" id="node-phone" class="w-full p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Номер телефона" required>
             </div>
-
             <div>
-                <label class="block text-sm font-medium mb-1">Пароль</label>
-                <input type="password" id="reg-password" class="w-full p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="••••••••" required>
+                <input type="password" id="node-pass" class="w-full p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Пароль" required>
             </div>
 
-            <div id="photo-group">
-                <label class="block text-sm font-medium mb-1">Ссылка на фото профиля</label>
-                <input type="url" id="reg-photo" class="w-full p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="https://image.com/myfoto.jpg">
-            </div>
-
-            <button type="submit" id="main-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg mt-4 shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+            <button type="submit" id="submit-btn" class="w-full bg-white text-black font-bold py-3 rounded-xl mt-2 hover:bg-slate-200 transition-all active:scale-95">
                 Зарегистрироваться
             </button>
         </form>
 
-        <div class="mt-6 text-center text-sm">
-            <span id="switch-text" class="text-slate-400">Уже есть аккаунт?</span>
-            <button id="switch-auth" class="text-blue-400 ml-1 font-semibold hover:underline">Войти</button>
+        <div class="mt-6 text-center text-sm text-slate-400">
+            <span id="toggle-text">Уже зарегистрированы?</span>
+            <button id="toggle-auth" class="text-blue-500 ml-1 font-medium">Войти</button>
         </div>
     </div>
 
-    <div id="main-app" class="hidden text-center">
-        <h2 class="text-2xl font-light italic">Вы успешно вошли. Идет загрузка мессенджера...</h2>
-        <p class="text-slate-500 mt-2">Черный фон — этап №1 завершен.</p>
+    <div id="app-screen" class="hidden fixed inset-0 bg-black flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-pulse text-slate-500">Загрузка интерфейса...</div>
+        </div>
     </div>
 
     <script type="module">
@@ -73,76 +75,67 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
         let isLoginMode = false;
+        let base64Photo = "";
 
-        const authForm = document.getElementById('auth-form');
-        const switchAuthBtn = document.getElementById('switch-auth');
-        const authTitle = document.getElementById('auth-title');
-        const nicknameGroup = document.getElementById('nickname-group');
-        const photoGroup = document.getElementById('photo-group');
-        const mainBtn = document.getElementById('main-btn');
-
-        // ПЕРЕКЛЮЧАТЕЛЬ ВХОД / РЕГИСТРАЦИЯ
-        switchAuthBtn.onclick = () => {
-            isLoginMode = !isLoginMode;
-            authTitle.innerText = isLoginMode ? "С возвращением!" : "Создать аккаунт";
-            nicknameGroup.classList.toggle('hidden');
-            photoGroup.classList.toggle('hidden');
-            mainBtn.innerText = isLoginMode ? "Войти" : "Зарегистрироваться";
-            switchAuthBtn.innerText = isLoginMode ? "Зарегистрироваться" : "Войти";
-            document.getElementById('switch-text').innerText = isLoginMode ? "Впервые тут?" : "Уже есть аккаунт?";
-        };
-
-        // ЛОГИКА АВТОРИЗАЦИИ
-        authForm.onsubmit = async (e) => {
-            e.preventDefault();
-            
-            const phone = document.getElementById('reg-phone').value.trim();
-            const pass = document.getElementById('reg-password').value.trim();
-            const nickname = document.getElementById('reg-nickname').value.trim();
-            const photo = document.getElementById('reg-photo').value.trim();
-
-            const dbRef = ref(db);
-
-            if (isLoginMode) {
-                // ПРОВЕРКА ВХОДА
-                try {
-                    const snapshot = await get(child(dbRef, `users/${phone}`));
-                    if (snapshot.exists()) {
-                        const userData = snapshot.val();
-                        if (userData.password === pass) {
-                            enterApp();
-                        } else {
-                            alert("Неверный пароль!");
-                        }
-                    } else {
-                        alert("Пользователь не найден!");
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-            } else {
-                // РЕГИСТРАЦИЯ
-                try {
-                    await set(ref(db, 'users/' + phone), {
-                        username: nickname,
-                        password: pass,
-                        photo: photo,
-                        role: (phone === "+79225941382" ? "admin" : "user")
-                    });
-                    alert("Регистрация успешна!");
-                    enterApp();
-                } catch (error) {
-                    alert("Ошибка регистрации!");
-                }
+        // Обработка выбора файла (конвертация в текст)
+        document.getElementById('node-photo').onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('file-name').innerText = file.name;
+                const reader = new FileReader();
+                reader.onloadend = () => { base64Photo = reader.result; };
+                reader.readAsDataURL(file);
             }
         };
 
-        function enterApp() {
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.body.style.backgroundColor = "black";
+        // Переключение Вход / Регистрация
+        document.getElementById('toggle-auth').onclick = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "С возвращением" : "Регистрация";
+            document.getElementById('reg-fields').classList.toggle('hidden');
+            document.getElementById('submit-btn').innerText = isLoginMode ? "Войти" : "Зарегистрироваться";
+            document.getElementById('toggle-text').innerText = isLoginMode ? "Нет аккаунта?" : "Уже зарегистрированы?";
+            document.getElementById('toggle-auth').innerText = isLoginMode ? "Создать" : "Войти";
+        };
+
+        // Логика формы
+        document.getElementById('auth-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('node-phone').value.trim();
+            const pass = document.getElementById('node-pass').value.trim();
+            const nick = document.getElementById('node-nick').value.trim();
+
+            if (isLoginMode) {
+                // ПРОВЕРКА ПРИ ВХОДЕ
+                const snapshot = await get(child(ref(db), `users/${phone}`));
+                if (snapshot.exists()) {
+                    if (snapshot.val().password === pass) {
+                        launchApp();
+                    } else {
+                        alert("Неверный пароль!");
+                    }
+                } else {
+                    alert("Пользователь с таким номером не найден!");
+                }
+            } else {
+                // РЕГИСТРАЦИЯ
+                if (!nick || !base64Photo) { alert("Заполните ник и выберите фото!"); return; }
+                
+                await set(ref(db, 'users/' + phone), {
+                    username: nick,
+                    password: pass,
+                    photo: base64Photo,
+                    role: (phone === "+79225941382" ? "admin" : "user")
+                });
+                alert("Успешная регистрация!");
+                launchApp();
+            }
+        };
+
+        function launchApp() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('app-screen').classList.remove('hidden');
         }
     </script>
 </body>
