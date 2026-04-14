@@ -3,43 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassMessenger</title>
+    <title>Class Messenger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; }
+        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        input { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; }
         .hidden { display: none; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <div id="auth-container" class="glass w-full max-w-md p-8 rounded-3xl shadow-2xl">
-        <h2 id="auth-title" class="text-3xl font-bold text-center mb-6 text-blue-400">Регистрация</h2>
-        
+    <div id="auth-container" class="glass p-8 rounded-2xl w-full max-w-md shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 id="auth-title" class="text-3xl font-bold tracking-tight">Создать аккаунт</h1>
+            <p id="auth-subtitle" class="text-slate-400 mt-2">Мессенджер для нашего класса</p>
+        </div>
+
         <form id="auth-form" class="space-y-4">
-            <div id="photo-section" class="flex flex-col items-center mb-4">
-                <label for="avatar" class="cursor-pointer bg-slate-700 w-20 h-20 rounded-full flex items-center justify-center border-2 border-dashed border-blue-500 overflow-hidden">
-                    <span id="photo-label" class="text-xs text-center p-1 text-slate-400">Фото</span>
-                    <img id="preview" class="hidden w-full h-full object-cover">
-                </label>
-                <input type="file" id="avatar" accept="image/*" class="hidden">
+            <div id="nickname-group">
+                <label class="block text-sm font-medium mb-1">Никнейм</label>
+                <input type="text" id="reg-nickname" class="w-full p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Напр. tima">
             </div>
 
-            <input type="text" id="nickname" placeholder="Никнейм" class="w-full bg-slate-800 border border-slate-600 p-3 rounded-xl focus:outline-none focus:border-blue-500 transition">
-            
-            <input type="tel" id="phone" placeholder="Номер телефона (+7...)" class="w-full bg-slate-800 border border-slate-600 p-3 rounded-xl focus:outline-none focus:border-blue-500 transition">
-            
-            <input type="password" id="password" placeholder="Пароль" class="w-full bg-slate-800 border border-slate-600 p-3 rounded-xl focus:outline-none focus:border-blue-500 transition">
+            <div>
+                <label class="block text-sm font-medium mb-1">Номер телефона</label>
+                <input type="tel" id="reg-phone" class="w-full p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="+79000000000" required>
+            </div>
 
-            <button type="submit" id="main-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-900/20">
-                Создать аккаунт
+            <div>
+                <label class="block text-sm font-medium mb-1">Пароль</label>
+                <input type="password" id="reg-password" class="w-full p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="••••••••" required>
+            </div>
+
+            <div id="photo-group">
+                <label class="block text-sm font-medium mb-1">Ссылка на фото профиля</label>
+                <input type="url" id="reg-photo" class="w-full p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="https://image.com/myfoto.jpg">
+            </div>
+
+            <button type="submit" id="main-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg mt-4 shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+                Зарегистрироваться
             </button>
         </form>
 
-        <div class="mt-6 text-center">
-            <p id="switch-text" class="text-slate-400">Уже есть аккаунт?</p>
-            <button id="switch-mode" class="text-blue-400 font-semibold mt-1">Войти</button>
+        <div class="mt-6 text-center text-sm">
+            <span id="switch-text" class="text-slate-400">Уже есть аккаунт?</span>
+            <button id="switch-auth" class="text-blue-400 ml-1 font-semibold hover:underline">Войти</button>
         </div>
+    </div>
+
+    <div id="main-app" class="hidden text-center">
+        <h2 class="text-2xl font-light italic">Вы успешно вошли. Идет загрузка мессенджера...</h2>
+        <p class="text-slate-500 mt-2">Черный фон — этап №1 завершен.</p>
     </div>
 
     <script type="module">
@@ -61,84 +76,74 @@
 
         let isLoginMode = false;
 
-        const authTitle = document.getElementById('auth-title');
-        const photoSection = document.getElementById('photo-section');
-        const nicknameInput = document.getElementById('nickname');
-        const mainBtn = document.getElementById('main-btn');
-        const switchBtn = document.getElementById('switch-mode');
-        const switchText = document.getElementById('switch-text');
         const authForm = document.getElementById('auth-form');
+        const switchAuthBtn = document.getElementById('switch-auth');
+        const authTitle = document.getElementById('auth-title');
+        const nicknameGroup = document.getElementById('nickname-group');
+        const photoGroup = document.getElementById('photo-group');
+        const mainBtn = document.getElementById('main-btn');
 
-        // Переключение между Входом и Регистрацией
-        switchBtn.addEventListener('click', () => {
+        // ПЕРЕКЛЮЧАТЕЛЬ ВХОД / РЕГИСТРАЦИЯ
+        switchAuthBtn.onclick = () => {
             isLoginMode = !isLoginMode;
-            if (isLoginMode) {
-                authTitle.innerText = "Вход";
-                photoSection.classList.add('hidden');
-                nicknameInput.classList.add('hidden');
-                mainBtn.innerText = "Войти";
-                switchText.innerText = "Нет аккаунта?";
-                switchBtn.innerText = "Зарегистрироваться";
-            } else {
-                authTitle.innerText = "Регистрация";
-                photoSection.classList.remove('hidden');
-                nicknameInput.classList.remove('hidden');
-                mainBtn.innerText = "Создать аккаунт";
-                switchText.innerText = "Уже есть аккаунт?";
-                switchBtn.innerText = "Войти";
-            }
-        });
+            authTitle.innerText = isLoginMode ? "С возвращением!" : "Создать аккаунт";
+            nicknameGroup.classList.toggle('hidden');
+            photoGroup.classList.toggle('hidden');
+            mainBtn.innerText = isLoginMode ? "Войти" : "Зарегистрироваться";
+            switchAuthBtn.innerText = isLoginMode ? "Зарегистрироваться" : "Войти";
+            document.getElementById('switch-text').innerText = isLoginMode ? "Впервые тут?" : "Уже есть аккаунт?";
+        };
 
-        // Превью фото
-        document.getElementById('avatar').addEventListener('change', function(e) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const img = document.getElementById('preview');
-                img.src = reader.result;
-                img.classList.remove('hidden');
-                document.getElementById('photo-label').classList.add('hidden');
-            }
-            reader.readAsDataURL(e.target.files[0]);
-        });
-
-        // Логика формы
-        authForm.addEventListener('submit', async (e) => {
+        // ЛОГИКА АВТОРИЗАЦИИ
+        authForm.onsubmit = async (e) => {
             e.preventDefault();
-            const phone = document.getElementById('phone').value.trim();
-            const pass = document.getElementById('password').value.trim();
-            const nick = nicknameInput.value.trim();
-
-            if (!phone || !pass) return alert("Заполни поля!");
+            
+            const phone = document.getElementById('reg-phone').value.trim();
+            const pass = document.getElementById('reg-password').value.trim();
+            const nickname = document.getElementById('reg-nickname').value.trim();
+            const photo = document.getElementById('reg-photo').value.trim();
 
             const dbRef = ref(db);
 
             if (isLoginMode) {
-                // ЛОГИКА ВХОДА
+                // ПРОВЕРКА ВХОДА
                 try {
                     const snapshot = await get(child(dbRef, `users/${phone}`));
-                    if (snapshot.exists() && snapshot.val().password === pass) {
-                        alert(`Привет, ${snapshot.val().nickname}! Вход выполнен.`);
-                        // Тут будет переход ко 2 этапу
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        if (userData.password === pass) {
+                            enterApp();
+                        } else {
+                            alert("Неверный пароль!");
+                        }
                     } else {
-                        alert("Неверный номер или пароль");
+                        alert("Пользователь не найден!");
                     }
-                } catch (error) { console.error(error); }
+                } catch (error) {
+                    console.error(error);
+                }
             } else {
-                // ЛОГИКА РЕГИСТРАЦИИ
-                if (!nick) return alert("Введи ник");
-                
+                // РЕГИСТРАЦИЯ
                 try {
                     await set(ref(db, 'users/' + phone), {
-                        nickname: nick,
+                        username: nickname,
                         password: pass,
-                        phone: phone,
-                        role: (phone === "+79225941382") ? "admin" : "user",
-                        approved: (phone === "+79225941382")
+                        photo: photo,
+                        role: (phone === "+79225941382" ? "admin" : "user")
                     });
-                    alert("Регистрация успешна! Ждите подтверждения админом.");
-                } catch (error) { alert("Ошибка при регистрации"); }
+                    alert("Регистрация успешна!");
+                    enterApp();
+                } catch (error) {
+                    alert("Ошибка регистрации!");
+                }
             }
-        });
+        };
+
+        function enterApp() {
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.body.style.backgroundColor = "black";
+        }
     </script>
 </body>
 </html>
