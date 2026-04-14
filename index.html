@@ -4,392 +4,373 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NeTelegram</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5lVGVsZWdyYW0iLAogICJzaG9ydF9uYW1lIjogIk5lVGVsZWdyYW0iLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAwMDAwMCIsCiAgInRoZW1lX2NvbG9yIjogIzAwN0FGRiIsCiAgImljb25zIjogW3sgInNyYyI6ICJmYXZpY29uLnBuZyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIiB9XQp9">
     
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <meta property="og:image" content="preview.png">
+
     <style>
         :root {
-            --bg: #0b0d10; --surface: #1c1f26; --accent: #ff3b30; /* Красный как в ТЗ */
-            --blue: #007AFF; --text: #ffffff; --text-sec: #8e8e93;
-            --glass: rgba(28, 31, 38, 0.8);
+            --bg: #0f0f0f;
+            --surface: #1a1a1a;
+            --accent: #ff3b30; /* Красный, как на логотипе */
+            --text: #ffffff;
+            --text-secondary: #8e8e93;
+            --glass: rgba(26, 26, 26, 0.9);
+            --border: rgba(255, 255, 255, 0.1);
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; }
-        body { background: var(--bg); color: var(--text); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* --- UI ЭЛЕМЕНТЫ --- */
-        .page { display: none; flex-direction: column; height: 100%; padding-bottom: 80px; overflow-y: auto; }
-        .page.active { display: flex; }
-        
-        header { 
-            padding: 50px 20px 15px; background: var(--glass); backdrop-filter: blur(20px);
-            display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid rgba(255,255,255,0.1);
-            position: sticky; top: 0; z-index: 100;
-        }
-        header img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* --- ВХОД / РЕГИСТРАЦИЯ --- */
-        #auth-page { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 30px; }
-        .auth-card { width: 100%; max-width: 400px; text-align: center; }
-        input, button { 
-            width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 16px; margin-bottom: 12px; 
-        }
-        input { background: var(--surface); color: #fff; outline: none; border: 1px solid transparent; }
-        input:focus { border-color: var(--blue); }
-        .btn-main { background: var(--blue); color: #fff; font-weight: bold; cursor: pointer; }
-        .btn-sec { background: transparent; color: var(--blue); cursor: pointer; }
+        /* --- ЭКРАНЫ --- */
+        .screen { display: none; height: 100vh; flex-direction: column; }
+        .screen.active { display: flex; }
+
+        /* --- АВТОРИЗАЦИЯ / РЕГИСТРАЦИЯ --- */
+        .auth-container { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        .logo-big { width: 100px; height: 100px; margin-bottom: 20px; }
+        .auth-input { width: 100%; max-width: 300px; background: var(--surface); border: 1px solid var(--border); padding: 15px; border-radius: 12px; color: #fff; margin-bottom: 10px; outline: none; font-size: 16px; }
+        .btn { width: 100%; max-width: 300px; background: var(--accent); border: none; padding: 15px; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-secondary { background: none; color: var(--text-secondary); margin-top: 15px; font-size: 14px; border: none; cursor: pointer; }
+
+        /* --- ШАПКА --- */
+        header { padding: 50px 20px 15px; background: var(--glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; z-index: 100; }
+        .header-brand { display: flex; align-items: center; gap: 10px; }
+        .logo-mini { width: 30px; height: 30px; border-radius: 50%; }
 
         /* --- ЧАТ --- */
-        #chat-list { flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 85%; padding: 10px 14px; border-radius: 18px; position: relative; font-size: 15px; line-height: 1.4; }
-        .msg.own { align-self: flex-end; background: var(--blue); border-bottom-right-radius: 4px; }
-        .msg.other { align-self: flex-start; background: var(--surface); border-bottom-left-radius: 4px; }
-        .msg .author { font-size: 11px; font-weight: bold; margin-bottom: 4px; opacity: 0.8; display: flex; align-items: center; gap: 4px; }
-        .admin-tag { color: #ffcc00; font-size: 10px; border: 1px solid #ffcc00; padding: 0 4px; border-radius: 4px; }
-        .msg img { max-width: 100%; border-radius: 10px; margin-top: 8px; display: block; }
-        .delete-btn { color: var(--accent); font-size: 10px; margin-top: 5px; cursor: pointer; text-align: right; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 80%; padding: 10px 14px; border-radius: 18px; position: relative; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .msg-in { background: var(--surface); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg-out { background: #007aff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-author { font-size: 11px; font-weight: bold; margin-bottom: 4px; display: block; }
+        .msg-admin { color: #ff9500; }
+        .msg-img { width: 100%; border-radius: 10px; margin-top: 5px; cursor: pointer; }
+        .msg-time { font-size: 10px; opacity: 0.5; display: block; text-align: right; margin-top: 4px; }
+        .btn-del { position: absolute; top: -5px; right: -5px; background: var(--accent); border: none; border-radius: 50%; width: 20px; height: 20px; color: white; font-size: 12px; display: none; cursor: pointer; }
+        .admin-view .btn-del { display: block; }
 
         /* --- ВВОД СООБЩЕНИЯ --- */
-        .input-area { 
-            position: fixed; bottom: 80px; left: 0; right: 0; background: var(--glass); 
-            backdrop-filter: blur(20px); padding: 10px; display: flex; gap: 8px; align-items: center;
-        }
-        .file-label { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--surface); border-radius: 50%; cursor: pointer; }
+        .input-area { padding: 10px 15px 30px; background: var(--glass); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+        .file-label { cursor: pointer; color: var(--accent); font-size: 24px; }
+        #msg-input { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 20px; color: #fff; outline: none; }
 
         /* --- ТАББАР --- */
-        .tabbar { 
-            position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: var(--glass);
-            backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding-top: 10px;
-            border-top: 0.5px solid rgba(255,255,255,0.1);
-        }
-        .tab { display: flex; flex-direction: column; align-items: center; color: var(--text-sec); font-size: 10px; cursor: pointer; }
-        .tab.active { color: var(--blue); }
-        .tab svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
+        .tabbar { background: var(--glass); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0 30px; }
+        .tab { color: var(--text-secondary); text-align: center; font-size: 12px; cursor: pointer; flex: 1; }
+        .tab.active { color: var(--accent); }
 
         /* --- АДМИНКА --- */
-        .admin-item { background: var(--surface); padding: 15px; border-radius: 15px; margin-bottom: 10px; }
-        .admin-btns { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-approve { background: #34c759; color: white; padding: 8px; border-radius: 8px; flex: 1; text-align: center; font-size: 13px;}
-        .btn-reject { background: var(--accent); color: white; padding: 8px; border-radius: 8px; flex: 1; text-align: center; font-size: 13px;}
+        .admin-list { padding: 20px; }
+        .user-item { background: var(--surface); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* --- ДНЕВНИК --- */
+        .diary-frame { width: 100%; height: 100%; border: none; }
+        .diary-fallback { padding: 40px; text-align: center; }
 
-        /* --- ИНСТРУКЦИЯ IPHONE --- */
-        #ios-prompt {
-            position: fixed; bottom: 100px; left: 20px; right: 20px; background: var(--blue);
-            color: white; padding: 15px; border-radius: 15px; z-index: 3000; display: none;
-        }
+        /* --- УВЕДОМЛЕНИЕ IPHONE --- */
+        #ios-prompt { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #fff; color: #000; padding: 20px; border-radius: 15px; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-    <div id="auth-page">
-        <div class="auth-card" id="auth-form">
-            <img src="favicon.png" style="width: 80px; height: 80px; margin-bottom: 20px;">
-            <h1 style="margin-bottom: 5px;">NeTelegram</h1>
-            <p style="color: var(--text-sec); margin-bottom: 25px;">Только для 11-А класса</p>
-            
-            <div id="reg-fields">
-                <input type="text" id="user-name" placeholder="Твое имя">
+    <div id="screen-login" class="screen active">
+        <div class="auth-container">
+            <img src="favicon.png" class="logo-big" alt="Logo">
+            <h2>Вход в NeTelegram</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">Только для 11 "А"</p>
+            <input type="tel" id="login-phone" class="auth-input" placeholder="+79991234567">
+            <input type="password" id="login-pin" class="auth-input" placeholder="PIN-код (4 цифры)">
+            <button class="btn" onclick="handleLogin()">Войти</button>
+            <button class="btn-secondary" onclick="switchScreen('screen-register')">Нет аккаунта? Подать заявку</button>
+        </div>
+    </div>
+
+    <div id="screen-register" class="screen">
+        <div class="auth-container">
+            <h2>Регистрация</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">Введите данные для проверки</p>
+            <input type="text" id="reg-name" class="auth-input" placeholder="Имя и Фамилия">
+            <input type="tel" id="reg-phone" class="auth-input" placeholder="+79991234567">
+            <input type="password" id="reg-pin" class="auth-input" placeholder="Придумай PIN (4 цифры)">
+            <button class="btn" onclick="handleRegister()">Отправить заявку</button>
+            <button class="btn-secondary" onclick="switchScreen('screen-login')">Вернуться назад</button>
+        </div>
+    </div>
+
+    <div id="screen-main" class="screen">
+        <header>
+            <div class="header-brand">
+                <img src="favicon.png" class="logo-mini">
+                <b id="header-title">NeTelegram</b>
             </div>
-            <input type="tel" id="user-phone" placeholder="+79991234567">
-            <input type="password" id="user-pin" placeholder="PIN-код (4 цифры)" maxlength="4">
-            
-            <button class="btn-main" id="btn-primary">Войти</button>
-            <button class="btn-sec" id="btn-toggle">У меня нет аккаунта (регистрация)</button>
+            <div id="admin-badge" style="display:none; font-size:12px; color:var(--accent)">Админ ⭐️</div>
+        </header>
+
+        <div id="tab-chat-content" class="tab-content" style="flex:1; display:flex; flex-direction:column;">
+            <div id="chat-messages"></div>
+            <div class="input-area">
+                <label class="file-label">
+                    <input type="file" id="msg-file" hidden accept="image/*" onchange="uploadPhoto(this)">
+                    📷
+                </label>
+                <input type="text" id="msg-input" placeholder="Сообщение...">
+                <button onclick="sendMessage()" style="background:none; border:none; font-size:24px; cursor:pointer;">🚀</button>
+            </div>
         </div>
-        <div id="wait-screen" style="display:none; text-align: center;">
-            <h2>Заявка отправлена! ⏳</h2>
-            <p>Админ проверит твой номер и даст доступ. Обычно это быстро.</p>
-            <button class="btn-sec" onclick="location.reload()">Проверить статус</button>
+
+        <div id="tab-diary-content" class="tab-content" style="flex:1; display:none;">
+            <div class="diary-fallback">
+                <h3>Школьный дневник</h3>
+                <p style="margin: 15px 0; color: var(--text-secondary);">Если фрейм не загрузился, используйте кнопку ниже.</p>
+                <a href="https://school.mosreg.ru/" target="_blank" class="btn" style="display:inline-block; text-decoration:none;">Открыть в новой вкладке</a>
+            </div>
+            <iframe src="https://school.mosreg.ru/" class="diary-frame"></iframe>
         </div>
+
+        <div id="tab-admin-content" class="tab-content" style="flex:1; display:none; overflow-y:auto;">
+            <div class="admin-list">
+                <h3>Заявки на вход</h3>
+                <div id="pending-users"></div>
+                <hr style="margin:20px 0; opacity:0.1">
+                <h3>Участники</h3>
+                <div id="approved-users"></div>
+            </div>
+        </div>
+
+        <nav class="tabbar">
+            <div class="tab active" onclick="showTab('chat')">💬<br>Чат</div>
+            <div class="tab" onclick="showTab('diary')">📔<br>Дневник</div>
+            <div id="tab-admin-btn" class="tab" style="display:none;" onclick="showTab('admin')">⚙️<br>Админ</div>
+            <div class="tab" onclick="logout()">🚪<br>Выйти</div>
+        </nav>
     </div>
-
-    <header>
-        <img src="favicon.png">
-        <span style="font-weight: 900; letter-spacing: -0.5px; font-size: 20px;">NeTelegram</span>
-    </header>
-
-    <div id="page-chat" class="page active">
-        <div id="chat-list"></div>
-        <div class="input-area">
-            <label class="file-label">
-                <input type="file" id="file-input" style="display:none" accept="image/*">
-                <span>📸</span>
-            </label>
-            <input type="text" id="msg-input" placeholder="Сообщение..." style="margin-bottom:0">
-            <button id="send-btn" style="width:60px; margin-bottom:0; background:var(--blue)">➤</button>
-        </div>
-    </div>
-
-    <div id="page-diary" class="page">
-        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center;">
-            <div style="font-size: 60px; margin-bottom: 20px;">📚</div>
-            <h2>Школьный дневник</h2>
-            <p style="color: var(--text-sec); margin-bottom: 30px;">Твой электронный журнал в одной кнопке</p>
-            <a href="https://school.mosreg.ru/" target="_blank" class="btn-main" style="text-decoration: none; width: 250px;">Открыть Мосрег</a>
-        </div>
-    </div>
-
-    <div id="page-admin" class="page">
-        <div style="padding: 20px;">
-            <h3>Новые заявки</h3>
-            <div id="pending-list"></div>
-            <hr style="opacity: 0.1; margin: 20px 0;">
-            <h3>Управление классом</h3>
-            <div id="approved-list"></div>
-        </div>
-    </div>
-
-    <nav class="tabbar">
-        <div class="tab active" onclick="nav('chat')">
-            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Чат
-        </div>
-        <div class="tab" onclick="nav('diary')">
-            <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>Дневник
-        </div>
-        <div class="tab" id="admin-tab" style="display:none" onclick="nav('admin')">
-            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>Админ
-        </div>
-        <div class="tab" onclick="logout()">
-            <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>Выход
-        </div>
-    </nav>
 
     <div id="ios-prompt">
-        Нажми <b>"Поделиться"</b> и выбери <b>"На экран Домой"</b>, чтобы работали уведомления и чат.
+        <p><strong>Установи приложение!</strong></p>
+        <p>Нажми кнопку «Поделиться» <img src="https://upload.wikimedia.org/wikipedia/commons/d/d1/IOS_Share_Icon.svg" width="15"> и выбери <strong>«На экран „Домой“»</strong>, чтобы получать уведомления.</p>
+        <button class="btn-secondary" onclick="this.parentElement.style.display='none'">Понятно</button>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
-        // --- КОНФИГУРАЦИЯ ---
+        // --- КОНФИГУРАЦИЯ FIREBASE (Вставь свои ключи!) ---
         const firebaseConfig = {
-            apiKey: "ВАШ_API_KEY",
-            authDomain: "ПРОЕКТ.firebaseapp.com",
-            databaseURL: "https://ПРОЕКТ.firebaseio.com",
-            projectId: "ПРОЕКТ",
-            storageBucket: "ПРОЕКТ.appspot.com",
-            messagingSenderId: "ID",
-            appId: "APP_ID"
+         apiKey: "AIzaSyDtbTs3c5EEU0AdWXDw4qxCmwDwBJVtMwY",
+  authDomain: "netelegram-d8c52.firebaseapp.com",
+  databaseURL: "https://netelegram-d8c52-default-rtdb.firebaseio.com",
+  projectId: "netelegram-d8c52",
+  storageBucket: "netelegram-d8c52.firebasestorage.app",
+  messagingSenderId: "214817548440",
+  appId: "1:214817548440:web:05e6113620f7ce7a9548ed"
         };
-
-        const whitelist = ["+79991234567", "+79997654321"]; // <--- СПИСОК НОМЕРОВ
-        const adminPhone = "+79991234567"; // <--- ВАШ НОМЕР
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getDatabase(app);
         const storage = getStorage(app);
-        
-        let currentUser = null;
-        let isRegMode = false;
+        const messaging = getMessaging(app);
 
-        // --- ЛОГИКА ВХОДА ---
-        const btnToggle = document.getElementById('btn-toggle');
-        const btnPrimary = document.getElementById('btn-primary');
-        const regFields = document.getElementById('reg-fields');
+        // --- НАСТРОЙКИ КЛАССА ---
+        const whitelist = ["+79991234567", "+79997654321"]; // Добавь все 21 номер сюда
+        const adminPhone = "+79991234567"; // Твой номер
 
-        btnToggle.onclick = () => {
-            isRegMode = !isRegMode;
-            regFields.style.display = isRegMode ? 'block' : 'none';
-            btnPrimary.innerText = isRegMode ? 'Зарегистрироваться' : 'Войти';
-            btnToggle.innerText = isRegMode ? 'Уже есть аккаунт' : 'Нет аккаунта (регистрация)';
+        let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+
+        // --- ЛОГИКА ЭКРАНОВ ---
+        window.switchScreen = (screenId) => {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
         };
 
-        btnPrimary.onclick = async () => {
-            const phone = document.getElementById('user-phone').value.trim();
-            const pin = document.getElementById('user-pin').value.trim();
-            const email = `${phone.replace('+', '')}@class.com`;
+        window.showTab = (tabName) => {
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tabName}-content`).style.display = 'flex';
+            event.currentTarget.classList.add('active');
+        };
 
+        // --- РЕГИСТРАЦИЯ ---
+        window.handleRegister = () => {
+            const name = document.getElementById('reg-name').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const pin = document.getElementById('reg-pin').value.trim();
+
+            if (!name || !phone || pin.length !== 4) return alert("Заполни все поля (PIN - 4 цифры)");
             if (!whitelist.includes(phone)) return alert("Твоего номера нет в списке класса!");
-            if (pin.length < 4) return alert("PIN должен быть из 4 цифр");
 
-            if (isRegMode) {
-                const name = document.getElementById('user-name').value.trim();
-                if (!name) return alert("Введи имя");
-                
-                // Создаем заявку в БД
-                await set(ref(db, 'pending/' + phone.replace('+', '')), {
-                    name, phone, pin, timestamp: Date.now()
-                });
-                document.getElementById('auth-form').style.display = 'none';
-                document.getElementById('wait-screen').style.display = 'block';
-            } else {
-                try {
-                    await signInWithEmailAndPassword(auth, email, pin);
-                } catch (e) {
-                    alert("Ошибка входа: проверь PIN или дождись одобрения админа.");
+            onValue(ref(db, 'approvedUsers/' + phone.replace('+', '')), (snapshot) => {
+                if (snapshot.exists()) {
+                    alert("Пользователь уже одобрен. Просто войди.");
+                    switchScreen('screen-login');
+                } else {
+                    set(ref(db, 'pendingUsers/' + phone.replace('+', '')), {
+                        name, phone, pin, status: 'waiting', timestamp: serverTimestamp()
+                    }).then(() => {
+                        alert("Заявка отправлена! Жди одобрения админом.");
+                        switchScreen('screen-login');
+                    });
                 }
-            }
+            }, { onlyOnce: true });
         };
 
-        // --- ПРОВЕРКА СОСТОЯНИЯ ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                onValue(ref(db, 'users/' + user.uid), (snap) => {
-                    const data = snap.val();
-                    if (data && data.isApproved) {
-                        currentUser = data;
-                        document.getElementById('auth-page').style.display = 'none';
-                        if (data.isAdmin) document.getElementById('admin-tab').style.display = 'flex';
-                        loadChat();
-                        setupNotifications();
-                    } else {
-                        signOut(auth);
-                        alert("Твой аккаунт еще не одобрен или заблокирован.");
-                    }
-                });
-            } else {
-                document.getElementById('auth-page').style.display = 'flex';
+        // --- ВХОД ---
+        window.handleLogin = () => {
+            const phone = document.getElementById('login-phone').value.trim().replace('+', '');
+            const pin = document.getElementById('login-pin').value.trim();
+
+            onValue(ref(db, 'approvedUsers/' + phone), (snapshot) => {
+                const user = snapshot.val();
+                if (user && user.pin === pin) {
+                    currentUser = user;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    startApp();
+                } else {
+                    alert("Неверные данные или ты еще не одобрен.");
+                }
+            }, { onlyOnce: true });
+        };
+
+        // --- ЗАПУСК ПРИЛОЖЕНИЯ ---
+        function startApp() {
+            if (!currentUser) return;
+            switchScreen('screen-main');
+            
+            if (currentUser.phone === adminPhone) {
+                document.getElementById('admin-badge').style.display = 'block';
+                document.getElementById('tab-admin-btn').style.display = 'block';
+                document.body.classList.add('admin-view');
+                loadAdminPanel();
             }
-        });
 
-        // --- ЧАТ ---
-        const sendBtn = document.getElementById('send-btn');
-        const msgInp = document.getElementById('msg-input');
-        const chatList = document.getElementById('chat-list');
-        const fileInp = document.getElementById('file-input');
-
-        async function sendMessage(text = "", imgUrl = null) {
-            if (!text && !imgUrl) return;
-            const newMsg = push(ref(db, 'messages'));
-            await set(newMsg, {
-                uid: auth.currentUser.uid,
-                author: currentUser.name,
-                text,
-                img: imgUrl,
-                isAdmin: currentUser.isAdmin || false,
-                time: Date.now()
-            });
-            msgInp.value = "";
+            loadMessages();
+            setupPush();
+            checkIOS();
         }
 
-        sendBtn.onclick = () => sendMessage(msgInp.value);
-        msgInp.onkeypress = (e) => e.key === 'Enter' && sendMessage(msgInp.value);
-
-        fileInp.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const sPath = sRef(storage, 'chat/' + Date.now() + '_' + file.name);
-            alert("Загрузка фото...");
-            const task = await uploadBytes(sPath, file);
-            const url = await getDownloadURL(task.ref);
-            sendMessage("", url);
-        };
-
-        function loadChat() {
-            onValue(ref(db, 'messages'), (snap) => {
-                chatList.innerHTML = "";
-                snap.forEach(child => {
+        // --- ЧАТ: ЗАГРУЗКА ---
+        function loadMessages() {
+            const chatBox = document.getElementById('chat-messages');
+            onValue(ref(db, 'messages'), (snapshot) => {
+                chatBox.innerHTML = '';
+                snapshot.forEach((child) => {
                     const m = child.val();
-                    const isOwn = m.uid === auth.currentUser.uid;
-                    const div = document.createElement('div');
-                    div.className = `msg ${isOwn ? 'own' : 'other'}`;
-                    div.innerHTML = `
-                        <div class="author">
-                            ${m.isAdmin ? '<span class="admin-tag">[А]</span>' : ''} ${m.author}
-                        </div>
-                        ${m.text ? `<div>${m.text}</div>` : ''}
-                        ${m.img ? `<img src="${m.img}">` : ''}
-                        <div style="font-size:9px; opacity:0.5; margin-top:4px">${new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    const isMe = m.phone === currentUser.phone;
+                    const isAdmin = m.phone === adminPhone;
+                    
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `msg ${isMe ? 'msg-out' : 'msg-in'}`;
+                    msgDiv.innerHTML = `
+                        ${!isMe ? `<span class="msg-author ${isAdmin ? 'msg-admin' : ''}">${m.name} ${isAdmin ? '⭐️' : ''}</span>` : ''}
+                        ${m.text ? `<p>${m.text}</p>` : ''}
+                        ${m.photo ? `<img src="${m.photo}" class="msg-img" onclick="window.open('${m.photo}')">` : ''}
+                        <span class="msg-time">${new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <button class="btn-del" onclick="deleteMessage('${child.key}')">×</button>
                     `;
-                    if (currentUser.isAdmin || isOwn) {
-                        const del = document.createElement('div');
-                        del.className = 'delete-btn';
-                        del.innerText = 'Удалить';
-                        del.onclick = () => remove(ref(db, 'messages/' + child.key));
-                        div.appendChild(del);
-                    }
-                    chatList.appendChild(div);
+                    chatBox.appendChild(msgDiv);
                 });
-                chatList.parentElement.scrollTop = chatList.parentElement.scrollHeight;
+                chatBox.scrollTop = chatBox.scrollHeight;
             });
         }
+
+        // --- ЧАТ: ОТПРАВКА ---
+        window.sendMessage = (photoUrl = null) => {
+            const input = document.getElementById('msg-input');
+            if (!input.value.trim() && !photoUrl) return;
+
+            push(ref(db, 'messages'), {
+                name: currentUser.name,
+                phone: currentUser.phone,
+                text: input.value,
+                photo: photoUrl,
+                timestamp: serverTimestamp()
+            });
+            input.value = '';
+        };
+
+        window.uploadPhoto = async (input) => {
+            const file = input.files[0];
+            if (!file) return;
+            const fileRef = sRef(storage, 'chat_photos/' + Date.now() + '_' + file.name);
+            alert("Фото загружается...");
+            await uploadBytes(fileRef, file);
+            const url = await getDownloadURL(fileRef);
+            sendMessage(url);
+        };
+
+        window.deleteMessage = (id) => {
+            if (confirm("Удалить сообщение?")) remove(ref(db, 'messages/' + id));
+        };
 
         // --- АДМИНКА ---
-        function loadAdmin() {
-            // Заявки
-            onValue(ref(db, 'pending'), (snap) => {
-                const list = document.getElementById('pending-list');
-                list.innerHTML = "";
-                snap.forEach(child => {
-                    const p = child.val();
-                    const div = document.createElement('div');
-                    div.className = 'admin-item';
-                    div.innerHTML = `<b>${p.name}</b> (${p.phone})
-                        <div class="admin-btns">
-                            <div class="btn-approve" onclick="approveUser('${child.key}')">Одобрить</div>
-                            <div class="btn-reject" onclick="rejectUser('${child.key}')">Отклонить</div>
-                        </div>`;
-                    list.appendChild(div);
-                });
-            });
-            // Список учеников
-            onValue(ref(db, 'users'), (snap) => {
-                const list = document.getElementById('approved-list');
-                list.innerHTML = "";
+        function loadAdminPanel() {
+            onValue(ref(db, 'pendingUsers'), (snap) => {
+                const div = document.getElementById('pending-users');
+                div.innerHTML = snap.exists() ? '' : '<p>Нет новых заявок</p>';
                 snap.forEach(child => {
                     const u = child.val();
-                    if (u.isAdmin) return;
-                    const div = document.createElement('div');
-                    div.className = 'admin-item';
-                    div.innerHTML = `<b>${u.name}</b> (${u.phone}) <br>
-                        <div class="btn-reject" style="margin-top:10px" onclick="banUser('${child.key}')">Забанить</div>`;
-                    list.appendChild(div);
+                    const item = document.createElement('div');
+                    item.className = 'user-item';
+                    item.innerHTML = `
+                        <div><b>${u.name}</b><br><small>${u.phone}</small></div>
+                        <div>
+                            <button class="btn" style="padding:5px 10px; width:auto;" onclick="approveUser('${child.key}')">✅</button>
+                            <button class="btn" style="padding:5px 10px; width:auto; background:gray;" onclick="rejectUser('${child.key}')">❌</button>
+                        </div>
+                    `;
+                    div.appendChild(item);
+                });
+            });
+
+            onValue(ref(db, 'approvedUsers'), (snap) => {
+                const div = document.getElementById('approved-users');
+                div.innerHTML = '';
+                snap.forEach(child => {
+                    const u = child.val();
+                    const item = document.createElement('div');
+                    item.className = 'user-item';
+                    item.innerHTML = `
+                        <div><b>${u.name}</b><br><small>${u.phone}</small></div>
+                        <button class="btn" style="padding:5px 10px; width:auto; background:gray;" onclick="banUser('${child.key}')">Бан</button>
+                    `;
+                    div.appendChild(item);
                 });
             });
         }
 
-        window.approveUser = async (phoneKey) => {
-            const pRef = ref(db, 'pending/' + phoneKey);
-            onValue(pRef, async (snap) => {
+        window.approveUser = (key) => {
+            onValue(ref(db, 'pendingUsers/' + key), (snap) => {
                 const data = snap.val();
-                if (!data) return;
-                try {
-                    const res = await createUserWithEmailAndPassword(auth, `${phoneKey}@class.com`, data.pin);
-                    await set(ref(db, 'users/' + res.user.uid), {
-                        name: data.name,
-                        phone: data.phone,
-                        isApproved: true,
-                        isAdmin: data.phone === adminPhone
-                    });
-                    await remove(pRef);
-                    alert("Ученик одобрен!");
-                } catch(e) { alert("Ошибка: " + e.message); }
-            }, {onlyOnce: true});
+                set(ref(db, 'approvedUsers/' + key), data);
+                remove(ref(db, 'pendingUsers/' + key));
+            }, { onlyOnce: true });
         };
 
-        window.banUser = (uid) => confirm("Удалить пользователя?") && remove(ref(db, 'users/' + uid));
-        window.rejectUser = (phoneKey) => remove(ref(db, 'pending/' + phoneKey));
-
-        // --- НАВИГАЦИЯ ---
-        window.nav = (page) => {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('page-' + page).classList.add('active');
-            event.currentTarget.classList.add('active');
-            if (page === 'admin') loadAdmin();
+        window.banUser = (key) => {
+            if (confirm("Забанить?")) remove(ref(db, 'approvedUsers/' + key));
         };
-
-        window.logout = () => signOut(auth).then(() => location.reload());
 
         // --- УВЕДОМЛЕНИЯ ---
-        async function setupNotifications() {
-            const messaging = getMessaging(app);
+        async function setupPush() {
             try {
-                const token = await getToken(messaging, { vapidKey: 'ВАШ_VAPID_KEY' });
-                if (token) await update(ref(db, 'users/' + auth.currentUser.uid), { fcmToken: token });
-            } catch (e) { console.log("Пуши не поддерживаются или запрещены"); }
+                const token = await getToken(messaging, { vapidKey: 'ТВОЙ_VAPID_KEY' });
+                if (token) update(ref(db, 'approvedUsers/' + currentUser.phone.replace('+','')), { fcmToken: token });
+            } catch (err) { console.log('Пуши не поддерживаются или отклонены'); }
         }
 
-        // iOS инструкция
-        if (navigator.standalone === false && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            document.getElementById('ios-prompt').style.display = 'block';
-            setTimeout(() => document.getElementById('ios-prompt').style.display = 'none', 10000);
+        // --- СЛУЖЕБНОЕ ---
+        window.logout = () => { localStorage.clear(); location.reload(); };
+        function checkIOS() {
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.navigator.standalone === true;
+            if (isIos && !isStandalone) document.getElementById('ios-prompt').style.display = 'block';
         }
 
+        if (currentUser) startApp();
     </script>
 </body>
 </html>
