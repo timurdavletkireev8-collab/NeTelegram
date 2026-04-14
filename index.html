@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta property="og:image" content="preview.png">
+    <meta property="og:title" content="NeTelegram — Классное приложение">
+    <meta property="og:description" content="Чат 8А и школьный дневник">
+    
     <title>NeTelegram</title>
+    
     <style>
-        /* --- ПРЕМИАЛЬНАЯ ТЁМНАЯ ТЕМА (ПЕРЕМЕННЫЕ) --- */
         :root {
             --bg-color: #000000;
             --surface-color: #151515;
@@ -15,7 +21,7 @@
             --text-main: #ffffff;
             --text-secondary: #8e8e93;
             --border-color: rgba(255, 255, 255, 0.08);
-            --glass-bg: rgba(21, 21, 21, 0.7);
+            --glass-bg: rgba(21, 21, 21, 0.8);
             --glass-blur: blur(20px);
         }
 
@@ -35,15 +41,15 @@
             overflow: hidden;
         }
 
-        /* --- ГЛАВНЫЙ КОНТЕЙНЕР (АДАПТИВНОСТЬ) --- */
+        /* КОНТЕЙНЕР АДАПТИВНОСТИ */
         .app-container {
             display: flex;
             width: 100%;
             height: 100%;
-            flex-direction: column; /* По умолчанию для мобильных */
+            flex-direction: column; /* Мобилки: вертикально */
         }
 
-        /* --- НАВИГАЦИЯ --- */
+        /* БОКОВАЯ / НИЖНЯЯ ПАНЕЛЬ */
         .nav-bar {
             background-color: var(--glass-bg);
             backdrop-filter: var(--glass-blur);
@@ -53,17 +59,16 @@
             justify-content: space-around;
             padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
             z-index: 100;
-            flex-shrink: 0;
         }
 
         .nav-brand {
             display: none; /* Скрыто на мобильных */
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             padding: 0 20px;
         }
 
@@ -78,13 +83,8 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
-            padding: 10px 0;
-        }
-
-        .nav-btn:hover {
-            color: #b0b0b0;
         }
 
         .nav-btn.active {
@@ -92,17 +92,12 @@
         }
 
         .nav-btn svg {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             fill: currentColor;
-            transition: transform 0.2s ease;
         }
 
-        .nav-btn.active svg {
-            transform: scale(1.1);
-        }
-
-        /* --- ОСНОВНАЯ ОБЛАСТЬ --- */
+        /* ОСНОВНОЙ КОНТЕНТ */
         .main-content {
             flex: 1;
             display: flex;
@@ -111,13 +106,13 @@
             position: relative;
         }
 
-        /* --- ШАПКА --- */
+        /* ШАПКА */
         .header {
             background-color: var(--glass-bg);
             backdrop-filter: var(--glass-blur);
             -webkit-backdrop-filter: var(--glass-blur);
             border-bottom: 1px solid var(--border-color);
-            padding: 15px 20px;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -125,11 +120,12 @@
         }
 
         .header-title {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-        .header-brand {
+        .header-brand-mobile {
             font-size: 16px;
             font-weight: 800;
             background: var(--accent-gradient);
@@ -137,7 +133,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* --- ВКЛАДКИ --- */
+        /* ВКЛАДКИ */
         .tab-content {
             display: none;
             flex: 1;
@@ -147,58 +143,52 @@
 
         .tab-content.active {
             display: flex;
-            animation: fadeIn 0.3s ease;
+            animation: slideUp 0.3s ease-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- СПИСОК ЧАТОВ --- */
+        /* СПИСОК ЧАТОВ */
         .chat-list {
             padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
         }
 
         .chat-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 14px;
             background-color: var(--surface-color);
-            border-radius: 16px;
+            border-radius: 18px;
+            margin-bottom: 8px;
             cursor: pointer;
-            transition: background 0.2s ease, transform 0.1s;
-        }
-
-        .chat-item:active {
-            transform: scale(0.98);
+            transition: 0.2s;
+            border: 1px solid transparent;
         }
 
         .chat-item:hover {
             background-color: var(--surface-hover);
+            border-color: var(--border-color);
         }
 
         .chat-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
             background: var(--accent-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
+            font-weight: 800;
+            font-size: 20px;
             margin-right: 15px;
-            flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(42, 133, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(42, 133, 255, 0.2);
         }
 
         .chat-info {
             flex: 1;
-            overflow: hidden;
         }
 
         .chat-name {
@@ -207,163 +197,119 @@
             margin-bottom: 4px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
         }
 
-        .chat-last-message {
+        .chat-last-msg {
             font-size: 14px;
             color: var(--text-secondary);
+            display: block;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 200px;
         }
 
-        .chat-meta {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
+        .pin-badge {
+            color: var(--accent-color);
+            font-size: 12px;
         }
 
-        .pin-icon {
-            color: var(--text-secondary);
-            font-size: 14px;
-            transform: rotate(45deg);
-        }
-
-        /* Плавающая кнопка создания чата */
-        .fab {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--accent-gradient);
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: 300;
-            box-shadow: 0 8px 20px rgba(42, 133, 255, 0.4);
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .fab:hover {
-            transform: scale(1.05);
-        }
-
-        .fab:active {
-            transform: scale(0.95);
-        }
-
-        /* --- ДНЕВНИК --- */
-        .diary-wrapper {
+        /* ДНЕВНИК */
+        .diary-section {
             padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 15px;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
         }
 
         .diary-card {
-            background-color: var(--surface-color);
-            border-radius: 20px;
-            padding: 25px;
+            background: var(--surface-color);
+            padding: 30px;
+            border-radius: 24px;
             text-align: center;
             border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 400px;
         }
 
-        .diary-card h3 {
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-        .diary-card p {
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
-        .btn-premium {
+        .btn-main {
             background: var(--accent-gradient);
             color: white;
             border: none;
-            padding: 14px 24px;
-            border-radius: 14px;
+            padding: 16px;
+            border-radius: 16px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             width: 100%;
+            margin-top: 20px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(42, 133, 255, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 20px rgba(42, 133, 255, 0.3);
         }
 
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(42, 133, 255, 0.4);
+        /* КНОПКА СОЗДАТЬ ЧАТ */
+        .add-chat-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(42, 133, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .btn-premium:active {
-            transform: translateY(0);
-        }
-
-        /* =========================================================
-           АДАПТИВНОСТЬ ДЛЯ ПК (Десктопная версия)
-           ========================================================= */
+        /* ДЕСКТОП ВЕРСИЯ (ПК) */
         @media (min-width: 768px) {
             .app-container {
-                flex-direction: row; /* Навигация слева, контент справа */
-                max-width: 1200px;
-                margin: 0 auto;
-                border-left: 1px solid var(--border-color);
-                border-right: 1px solid var(--border-color);
+                flex-direction: row;
             }
 
             .nav-bar {
                 flex-direction: column;
+                width: 280px;
+                height: 100%;
                 justify-content: flex-start;
-                width: 250px;
                 border-top: none;
                 border-right: 1px solid var(--border-color);
-                padding: 30px 10px;
-                background-color: transparent;
+                padding: 40px 15px;
             }
 
             .nav-brand {
-                display: block; /* Показываем логотип в боковом меню */
+                display: block;
             }
 
             .nav-btn {
                 flex-direction: row;
-                padding: 15px 20px;
-                border-radius: 12px;
+                padding: 16px 20px;
+                border-radius: 14px;
                 font-size: 16px;
-                justify-content: flex-start;
                 gap: 15px;
-            }
-
-            .nav-btn:hover {
-                background-color: var(--surface-hover);
+                margin-bottom: 8px;
             }
 
             .nav-btn.active {
-                background-color: rgba(42, 133, 255, 0.1);
+                background: rgba(42, 133, 255, 0.1);
             }
 
-            .header-brand {
-                display: none; /* Скрываем логотип в шапке, так как он есть слева */
+            .header-brand-mobile {
+                display: none;
             }
 
-            .main-content {
-                background-color: var(--bg-color);
-            }
-
-            .chat-list, .diary-wrapper {
-                padding: 20px 40px;
+            .chat-list {
+                max-width: 600px;
+                margin: 0 auto;
+                width: 100%;
             }
         }
     </style>
@@ -374,21 +320,14 @@
         
         <nav class="nav-bar">
             <div class="nav-brand">NeTelegram</div>
-            <button class="nav-btn active" onclick="openTab('chats', 'Чаты', this)">
-                <svg viewBox="0 0 24 24">
-                    <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H5.17L4 17.17V4H20V16Z"/>
-                    <path d="M7 9H17V11H7V9Z"/>
-                    <path d="M7 13H14V15H7V13Z"/>
-                </svg>
+            
+            <button class="nav-btn active" onclick="switchTab('chats', 'Чаты', this)">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22H17V20H12C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12V13.43C20 14.22 19.29 15 18.5 15C17.71 15 17 14.22 17 13.43V12C17 9.24 14.76 7 12 7C9.24 7 7 9.24 7 12C7 14.76 9.24 17 12 17C13.38 17 14.64 16.44 15.54 15.53C16.19 16.42 17.27 17 18.5 17C20.43 17 22 15.43 22 13.43V12C22 6.48 17.52 2 12 2ZM12 15C10.34 15 9 13.66 9 12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12C15 13.66 13.66 15 12 15Z"/></svg>
                 Чаты
             </button>
-            <button class="nav-btn" onclick="openTab('diary', 'Дневник', this)">
-                <svg viewBox="0 0 24 24">
-                    <path d="M19 3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.11 21 21 20.1 21 19V5C21 3.9 20.11 3 19 3ZM19 19H5V5H19V19Z"/>
-                    <path d="M7 7H17V9H7V7Z"/>
-                    <path d="M7 11H17V13H7V11Z"/>
-                    <path d="M7 15H14V17H7V15Z"/>
-                </svg>
+
+            <button class="nav-btn" onclick="switchTab('diary', 'Дневник', this)">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H14V17H7V15Z"/></svg>
                 Дневник
             </button>
         </nav>
@@ -396,41 +335,33 @@
         <main class="main-content">
             
             <header class="header">
-                <div class="header-title" id="page-title">Чаты</div>
-                <div class="header-brand">NeTelegram</div>
+                <div class="header-title" id="page-name">Чаты</div>
+                <div class="header-brand-mobile">NeTelegram</div>
             </header>
 
             <div id="tab-chats" class="tab-content active">
                 <div class="chat-list">
-                    
                     <div class="chat-item">
                         <div class="chat-avatar">8А</div>
                         <div class="chat-info">
-                            <div class="chat-name">
-                                БЕСЕДА 8А
-                            </div>
-                            <div class="chat-last-message">Александр: Дз по физике скиньте пж</div>
-                        </div>
-                        <div class="chat-meta">
-                            <div class="pin-icon">📌</div>
+                            <div class="chat-name">БЕСЕДА 8А <span class="pin-badge">📌</span></div>
+                            <span class="chat-last-msg">Александр: Дз по физике скиньте пж</span>
                         </div>
                     </div>
 
-                    <div style="text-align: center; color: var(--text-secondary); margin-top: 40px; font-size: 14px;">
-                        Здесь будут появляться новые доступные чаты
+                    <div style="text-align: center; color: var(--text-secondary); margin-top: 50px; font-size: 14px; opacity: 0.5;">
+                        Новые чаты появятся здесь
                     </div>
-
                 </div>
-                
-                <button class="fab" title="Создать чат">+</button>
+                <button class="add-chat-btn">+</button>
             </div>
 
             <div id="tab-diary" class="tab-content">
-                <div class="diary-wrapper">
+                <div class="diary-section">
                     <div class="diary-card">
-                        <h3>Электронный дневник</h3>
-                        <p>Здесь будет отображаться ваше актуальное расписание занятий, домашние задания и оценки.</p>
-                        <button class="btn-premium">Открыть дневник</button>
+                        <h2>Дневник</h2>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Расписание, оценки и домашние задания в одном месте.</p>
+                        <button class="btn-main">Открыть дневник</button>
                     </div>
                 </div>
             </div>
@@ -439,25 +370,18 @@
     </div>
 
     <script>
-        function openTab(tabId, titleText, btnElement) {
-            // Скрываем все вкладки
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-
-            // Убираем активный класс у кнопок
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Показываем выбранную вкладку
-            document.getElementById('tab-' + tabId).classList.add('active');
-
-            // Делаем кнопку активной
-            btnElement.classList.add('active');
-
-            // Меняем заголовок в шапке
-            document.getElementById('page-title').innerText = titleText;
+        function switchTab(id, name, btn) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            // Деактивировать кнопки
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            // Активировать нужную
+            document.getElementById('tab-' + id).classList.add('active');
+            btn.classList.add('active');
+            
+            // Сменить заголовок
+            document.getElementById('page-name').innerText = name;
         }
     </script>
 </body>
