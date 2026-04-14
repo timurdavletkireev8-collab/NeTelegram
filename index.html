@@ -2,61 +2,103 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class App | Auth</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NeTelegram</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #000; color: white; font-family: 'Inter', sans-serif; }
-        .auth-card { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); transform: translateY(0); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        input { background: #020617 !important; border: 1px solid #1e293b !important; color: white !important; transition: 0.2s; }
-        input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-        .hidden { display: none; }
-        .btn-primary { background: white; color: black; font-weight: 700; transition: 0.2s; }
-        .btn-primary:hover { background: #e2e8f0; transform: scale(1.02); }
-        .btn-primary:active { transform: scale(0.98); }
+        body { background: #000; color: white; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
+        .glass { background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); }
+        .msg-bubble { max-width: 85%; position: relative; animation: msg-appear 0.3s ease-out; }
+        @keyframes msg-appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        input[type="file"] { display: none; }
+        ::-webkit-scrollbar { width: 0px; }
+        .active-tab { color: #3b82f6 !important; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex flex-col">
 
-    <div id="auth-container" class="auth-card p-8 rounded-[2.5rem] w-full max-w-[380px] shadow-2xl">
-        <div class="text-center mb-8">
-            <h1 id="auth-title" class="text-3xl font-bold tracking-tight">Регистрация</h1>
-            <p id="auth-subtitle" class="text-slate-500 text-sm mt-2">Мессенджер нашего класса</p>
-        </div>
-
-        <form id="auth-form" class="space-y-4">
-            <div id="reg-fields" class="space-y-4">
-                <input type="text" id="node-nick" class="w-full p-4 rounded-2xl outline-none" placeholder="Никнейм">
-                <label class="flex items-center justify-center p-4 rounded-2xl border-2 border-dashed border-slate-700 text-sm text-slate-400 cursor-pointer hover:border-blue-500 transition-all">
-                    <input type="file" id="node-photo" class="hidden" accept="image/*">
-                    <span id="file-name">Выбрать фото</span>
+    <div id="auth-screen" class="fixed inset-0 z-[100] bg-black flex items-center justify-center p-6">
+        <div class="w-full max-w-sm text-center">
+            <img src="favicon.png" class="w-24 h-24 mx-auto mb-6 rounded-3xl shadow-2xl">
+            <h1 class="text-3xl font-bold mb-2">NeTelegram</h1>
+            <p class="text-slate-500 mb-8" id="auth-desc">Регистрация в мессенджере</p>
+            
+            <form id="auth-form" class="space-y-3">
+                <input type="text" id="reg-nick" class="w-full p-4 bg-zinc-900 rounded-2xl outline-none" placeholder="Никнейм">
+                <label class="block w-full p-4 bg-zinc-900 rounded-2xl text-slate-400 cursor-pointer border border-dashed border-zinc-700" id="photo-label">
+                    <input type="file" id="reg-photo" accept="image/*">
+                    <span id="photo-status">Выбрать аватар</span>
                 </label>
-            </div>
-
-            <input type="tel" id="node-phone" class="w-full p-4 rounded-2xl outline-none" placeholder="Номер телефона" required>
-            <input type="password" id="node-pass" class="w-full p-4 rounded-2xl outline-none" placeholder="Пароль" required>
-
-            <button type="submit" id="submit-btn" class="w-full btn-primary py-4 rounded-2xl mt-4">
-                Зарегистрироваться
-            </button>
-        </form>
-
-        <div class="mt-8 text-center text-sm text-slate-400">
-            <span id="toggle-text">Уже в теме?</span>
-            <button id="toggle-auth" class="text-blue-500 ml-1 font-semibold hover:text-blue-400 transition">Войти</button>
+                <input type="tel" id="reg-phone" class="w-full p-4 bg-zinc-900 rounded-2xl outline-none" placeholder="Номер телефона" required>
+                <input type="password" id="reg-pass" class="w-full p-4 bg-zinc-900 rounded-2xl outline-none" placeholder="Пароль" required>
+                <button type="submit" id="auth-btn" class="w-full bg-white text-black font-bold py-4 rounded-2xl transition-all active:scale-95">Зарегистрироваться</button>
+            </form>
+            <button id="toggle-auth" class="mt-6 text-blue-500 text-sm font-medium">Уже есть аккаунт? Войти</button>
         </div>
     </div>
 
-    <div id="app-screen" class="hidden fixed inset-0 bg-black flex flex-col items-center justify-center">
-        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-4 text-slate-500 font-medium">Входим в систему...</p>
+    <div id="main-app" class="hidden flex flex-col h-full">
+        <header class="p-4 flex items-center justify-between border-b border-zinc-900 bg-black/50 backdrop-blur-lg sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <img src="favicon.png" class="w-8 h-8 rounded-lg">
+                <h2 class="text-xl font-bold tracking-tight" id="header-title">Чаты</h2>
+            </div>
+            <img id="my-top-avatar" class="w-9 h-9 rounded-full border border-zinc-800 object-cover">
+        </header>
+
+        <div id="chat-list" class="flex-1 overflow-y-auto">
+            <div onclick="openConversation('chat_8a', 'Беседа 8А')" class="p-4 flex items-center gap-4 hover:bg-zinc-900 cursor-pointer border-b border-zinc-900">
+                <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span class="font-bold text-xl">8А</span>
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-lg">Беседа 8А</h3>
+                        <span class="text-xs text-slate-500">Закреплено</span>
+                    </div>
+                    <p class="text-sm text-slate-400 truncate">Нажми, чтобы войти в чат...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="chat-window" class="hidden fixed inset-0 bg-black z-[60] flex flex-col">
+            <header class="p-4 flex items-center gap-4 border-b border-zinc-900 bg-black">
+                <button onclick="closeChat()" class="p-2 -ml-2 text-blue-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <div id="chat-info" class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold">8А</div>
+                    <h3 id="target-chat-name" class="font-bold">Беседа 8А</h3>
+                </div>
+            </header>
+            
+            <div id="messages-flow" class="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col"></div>
+
+            <div class="p-3 bg-zinc-900/50 backdrop-blur-xl border-t border-zinc-800">
+                <form id="msg-form" class="flex items-center gap-2">
+                    <label class="p-2 text-blue-500 cursor-pointer">
+                        <input type="file" id="attach-file" accept="image/*,video/*">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    </label>
+                    <input type="text" id="msg-input" class="flex-1 bg-zinc-800 rounded-full px-4 py-2 outline-none text-sm" placeholder="Сообщение...">
+                    <button type="submit" class="bg-blue-600 p-2 rounded-full text-white shadow-lg shadow-blue-500/20">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <nav class="p-2 flex justify-around border-t border-zinc-900 bg-black">
+            <button onclick="showMainTab('chats')" class="p-3 text-blue-500"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></button>
+            <button onclick="showMainTab('profile')" class="p-3 text-zinc-500"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></button>
+        </nav>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, child, onChildAdded, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDtbTs3c5EEU0AdWXDw4qxCmwDwBJVtMwY",
@@ -70,102 +112,110 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let isLoginMode = false;
-        let base64Photo = "";
+        let isLogin = false;
+        let myPhoto = "";
+        let currentChatId = "";
 
-        // Проверка сессии при загрузке
-        if (localStorage.getItem('userPhone')) {
-            launchApp();
-        }
-
-        // Конвертация фото
-        document.getElementById('node-photo').onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 500000) { // Лимит 0.5MB для Base64 в Realtime DB
-                    Swal.fire('Ошибка', 'Фото слишком тяжелое', 'error');
-                    return;
-                }
-                document.getElementById('file-name').innerText = "Фото выбрано ✓";
-                const reader = new FileReader();
-                reader.onloadend = () => { base64Photo = reader.result; };
-                reader.readAsDataURL(file);
-            }
+        // --- ЛОГИКА АВТОРИЗАЦИИ ---
+        document.getElementById('reg-photo').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = () => { myPhoto = reader.result; document.getElementById('photo-status').innerText = "Готово ✓"; };
+            reader.readAsDataURL(e.target.files[0]);
         };
 
-        // Смена режима
         document.getElementById('toggle-auth').onclick = () => {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "С возвращением" : "Регистрация";
-            document.getElementById('reg-fields').classList.toggle('hidden');
-            document.getElementById('submit-btn').innerText = isLoginMode ? "Войти" : "Зарегистрироваться";
-            document.getElementById('toggle-auth').innerText = isLoginMode ? "Создать аккаунт" : "Войти";
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? "Вход" : "Регистрация";
+            document.getElementById('reg-fields').classList.toggle('hidden', isLogin);
+            document.getElementById('auth-btn').innerText = isLogin ? "Войти" : "Зарегистрироваться";
         };
 
-        // Обработка формы
         document.getElementById('auth-form').onsubmit = async (e) => {
             e.preventDefault();
-            const phone = document.getElementById('node-phone').value.trim();
-            const pass = document.getElementById('node-pass').value.trim();
-            const nick = document.getElementById('node-nick').value.trim();
+            const phone = document.getElementById('reg-phone').value;
+            const pass = document.getElementById('reg-pass').value;
+            const nick = document.getElementById('reg-nick').value;
 
-            Swal.showLoading();
-
-            try {
-                const userRef = child(ref(db), `users/${phone}`);
-                const snapshot = await get(userRef);
-
-                if (isLoginMode) {
-                    if (snapshot.exists() && snapshot.val().password === pass) {
-                        saveSession(phone, snapshot.val());
-                    } else {
-                        Swal.fire('Ошибка', 'Неверный номер или пароль', 'error');
-                    }
-                } else {
-                    if (snapshot.exists()) {
-                        Swal.fire('Упс!', 'Этот номер уже зарегистрирован', 'warning');
-                    } else {
-                        if (!nick || !base64Photo) {
-                            Swal.fire('Внимание', 'Заполните ник и выберите фото!', 'info');
-                            return;
-                        }
-                        const userData = {
-                            username: nick,
-                            password: pass,
-                            photo: base64Photo,
-                            role: (phone === "+79225941382" ? "admin" : "user")
-                        };
-                        await set(ref(db, 'users/' + phone), userData);
-                        saveSession(phone, userData);
-                    }
-                }
-            } catch (err) {
-                Swal.fire('Ошибка связи', 'Проверь интернет или правила БД', 'error');
+            if(isLogin) {
+                const snap = await get(child(ref(db), `users/${phone}`));
+                if(snap.exists() && snap.val().password === pass) {
+                    saveUser(phone, snap.val());
+                } else { Swal.fire('Ошибка', 'Данные не верны', 'error'); }
+            } else {
+                const userData = { username: nick, password: pass, photo: myPhoto, role: (phone === "+79225941382" ? "admin" : "user") };
+                await set(ref(db, 'users/' + phone), userData);
+                saveUser(phone, userData);
             }
         };
 
-        function saveSession(phone, data) {
-            localStorage.setItem('userPhone', phone);
-            localStorage.setItem('userName', data.username);
-            localStorage.setItem('userRole', data.role);
-            
-            Swal.fire({
-                title: `Привет, ${data.username}!`,
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false,
-                background: '#0f172a',
-                color: '#fff'
-            }).then(() => {
-                launchApp();
+        function saveUser(phone, data) {
+            localStorage.setItem('u_phone', phone);
+            localStorage.setItem('u_name', data.username);
+            localStorage.setItem('u_photo', data.photo);
+            location.reload();
+        }
+
+        if(localStorage.getItem('u_phone')) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('my-top-avatar').src = localStorage.getItem('u_photo');
+        }
+
+        // --- ЛОГИКА ЧАТА ---
+        window.openConversation = (id, name) => {
+            currentChatId = id;
+            document.getElementById('target-chat-name').innerText = name;
+            document.getElementById('chat-window').classList.remove('hidden');
+            document.getElementById('messages-flow').innerHTML = "";
+            loadMessages(id);
+        };
+
+        window.closeChat = () => document.getElementById('chat-window').classList.add('hidden');
+
+        function loadMessages(id) {
+            onChildAdded(ref(db, `messages/${id}`), (snap) => {
+                const m = snap.val();
+                const isMe = m.phone === localStorage.getItem('u_phone');
+                const html = `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="msg-bubble p-3 rounded-2xl shadow-sm ${isMe ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-white'}">
+                            ${!isMe ? `<p class="text-[10px] font-bold text-blue-400 mb-1">${m.name}</p>` : ''}
+                            ${m.file ? (m.file.includes('video') ? `<video src="${m.file}" controls class="rounded-lg mb-2"></video>` : `<img src="${m.file}" class="rounded-lg mb-2 max-h-60">`) : ''}
+                            <p class="text-sm">${m.text}</p>
+                            <p class="text-[9px] opacity-50 text-right mt-1">${m.time}</p>
+                        </div>
+                    </div>
+                `;
+                const flow = document.getElementById('messages-flow');
+                flow.insertAdjacentHTML('beforeend', html);
+                flow.scrollTo(0, flow.scrollHeight);
             });
         }
 
-        function launchApp() {
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-            document.body.style.background = "#000";
-        }
+        document.getElementById('msg-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('msg-input');
+            const fileIn = document.getElementById('attach-file');
+            let fileData = "";
+
+            if(fileIn.files[0]) {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileIn.files[0]);
+                reader.onload = () => send(reader.result);
+            } else { send(""); }
+
+            async function send(f) {
+                if(!input.value && !f) return;
+                await push(ref(db, `messages/${currentChatId}`), {
+                    phone: localStorage.getItem('u_phone'),
+                    name: localStorage.getItem('u_name'),
+                    text: input.value,
+                    file: f,
+                    time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+                });
+                input.value = ""; fileIn.value = "";
+            }
+        };
     </script>
 </body>
 </html>
