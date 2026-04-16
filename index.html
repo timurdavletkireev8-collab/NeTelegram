@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NeTelegram - Премиальный мессенджер</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Экран входа -->
+        <div id="auth-screen" class="screen active">
+            <div class="auth-container">
+                <div class="logo">
+                    <div class="logo-icon">💬</div>
+                    <h1 class="logo-text">NeTelegram</h1>
+                    <p class="logo-subtitle">Премиальный мессенджер 8А</p>
+                </div>
+                
+                <form id="auth-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="auth-username">Логин</label>
+                        <input type="text" id="auth-username" placeholder="Введите логин" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="auth-password">Пароль</label>
+                        <input type="password" id="auth-password" placeholder="Введите пароль" required>
+                    </div>
+                    
+                    <div id="register-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="register-name">Имя</label>
+                            <input type="text" id="register-name" placeholder="Ваше имя">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-surname">Фамилия</label>
+                            <input type="text" id="register-surname" placeholder="Ваша фамилия">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="auth-btn" class="btn btn-primary">Войти</button>
+                    
+                    <p class="auth-toggle">
+                        <span id="auth-toggle-text">Нет аккаунта?</span>
+                        <a href="#" id="auth-toggle-link">Зарегистрироваться</a>
+                    </p>
+                </form>
+                
+                <div id="auth-error" class="error-message" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Главный экран -->
+        <div id="main-screen" class="screen">
+            <!-- Верхний заголовок -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="menu-toggle" class="menu-btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>БЕСЕДА 8А</h2>
+                </div>
+                <div class="header-right">
+                    <button id="theme-toggle" class="icon-btn">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <!-- Чат -->
+                <div id="chat-section" class="section active">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages"></div>
+                        <div class="chat-input-area">
+                            <button id="emoji-btn" class="icon-btn">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                            <input type="text" id="message-input" placeholder="Сообщение...">
+                            <button id="send-btn" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Участники -->
+                <div id="members-section" class="section">
+                    <div class="members-container">
+                        <h3>Участники 8А</h3>
+                        <div class="members-list" id="members-list"></div>
+                    </div>
+                </div>
+
+                <!-- Профиль -->
+                <div id="profile-section" class="section">
+                    <div class="profile-container">
+                        <h3>Редактор профиля</h3>
+                        
+                        <!-- Настройки уведомлений -->
+                        <div class="settings-card">
+                            <h4>Настройки уведомлений</h4>
+                            <div class="setting-item">
+                                <span>Звук уведомлений</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="sound-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Уведомления браузера</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="browser-notif-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Только упоминания</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mentions-only-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <form id="profile-form">
+                            <div class="avatar-selector">
+                                <div class="current-avatar" id="current-avatar">🧑</div>
+                                <div class="avatar-options">
+                                    <button type="button" class="avatar-option" data-avatar="🧑">🧑</button>
+                                    <button type="button" class="avatar-option" data-avatar="🎓">🎓</button>
+                                    <button type="button" class="avatar-option" data-avatar="👩‍🎓">👩‍🎓</button>
+                                    <button type="button" class="avatar-option" data-avatar="👨‍🎓">👨‍🎓</button>
+                                    <button type="button" class="avatar-option" data-avatar="👨‍🏫">👨‍🏫</button>
+                                    <button type="button" class="avatar-option" data-avatar="⭐">⭐</button>
+                                    <button type="button" class="avatar-option" data-avatar="📚">📚</button>
+                                    <button type="button" class="avatar-option" data-avatar="🎯">🎯</button>
+                                    <button type="button" class="avatar-option" data-avatar="🔥">🔥</button>
+                                    <button type="button" class="avatar-option" data-avatar="💡">💡</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Имя</label>
+                                <input type="text" id="profile-name" placeholder="Имя">
+                            </div>
+                            <div class="form-group">
+                                <label>Фамилия</label>
+                                <input type="text" id="profile-surname" placeholder="Фамилия">
+                            </div>
+                            <div class="form-group">
+                                <label>Никнейм</label>
+                                <input type="text" id="profile-username" placeholder="Никнейм">
+                            </div>
+                            <div class="form-group">
+                                <label>Новый пароль</label>
+                                <input type="password" id="profile-password" placeholder="Новый пароль">
+                            </div>
+                            <div class="form-group">
+                                <label>Подтверждение пароля</label>
+                                <input type="password" id="profile-password-confirm" placeholder="Подтвердите пароль">
+                            </div>
+                            <div class="form-group">
+                                <label>Статус</label>
+                                <select id="profile-status">
+                                    <option value="онлайн">онлайн</option>
+                                    <option value="на уроке">на уроке</option>
+                                    <option value="офлайн">офлайн</option>
+                                    <option value="занят">занят</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Админка -->
+                <div id="admin-section" class="section">
+                    <div class="admin-container">
+                        <h3>⚙️ Админ-панель</h3>
+                        
+                        <div class="admin-card">
+                            <h4>Управление учениками</h4>
+                            <div class="admin-students-list" id="admin-students-list"></div>
+                        </div>
+                        
+                        <div class="admin-card">
+                            <h4>Добавить объявление</h4>
+                            <form id="announcement-form">
+                                <div class="form-group">
+                                    <input type="text" id="announcement-text" placeholder="Текст объявления">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Опубликовать</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Уведомления -->
+                <div id="notifications-section" class="section">
+                    <div class="notifications-container">
+                        <h3>🔔 Уведомления</h3>
+                        <div class="notifications-list" id="notifications-list">
+                            <div class="empty-state">
+                                <i class="fas fa-bell"></i>
+                                <p>Нет новых уведомлений</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Боковое меню -->
+            <nav class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="user-info">
+                        <span class="user-avatar" id="sidebar-avatar">🧑</span>
+                        <span class="user-name" id="sidebar-name">Пользователь</span>
+                    </div>
+                    <button id="sidebar-close" class="icon-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li data-section="chat-section" class="active">
+                        <i class="fas fa-comments"></i>
+                        <span>БЕСЕДА 8А</span>
+                    </li>
+                    <li data-section="members-section">
+                        <i class="fas fa-users"></i>
+                        <span>Участники</span>
+                    </li>
+                    <li data-section="profile-section">
+                        <i class="fas fa-user"></i>
+                        <span>Профиль</span>
+                    </li>
+                    <li id="admin-menu-item" data-section="admin-section" style="display: none;">
+                        <i class="fas fa-cog"></i>
+                        <span>Админка</span>
+                    </li>
+                    <li data-section="notifications-section">
+                        <i class="fas fa-bell"></i>
+                        <span>Уведомления</span>
+                    </li>
+                </ul>
+                
+                <button id="logout-btn" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Выйти
+                </button>
+            </nav>
+            
+            <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+            <!-- Эмодзи панель -->
+            <div class="emoji-panel" id="emoji-panel" style="display: none;">
+                <div class="emoji-grid">
+                    <button class="emoji-btn">😀</button>
+                    <button class="emoji-btn">😂</button>
+                    <button class="emoji-btn">😍</button>
+                    <button class="emoji-btn">🤔</button>
+                    <button class="emoji-btn">😎</button>
+                    <button class="emoji-btn">😢</button>
+                    <button class="emoji-btn">😡</button>
+                    <button class="emoji-btn">👍</button>
+                    <button class="emoji-btn">👎</button>
+                    <button class="emoji-btn">❤️</button>
+                    <button class="emoji-btn">🔥</button>
+                    <button class="emoji-btn">💯</button>
+                    <button class="emoji-btn">🎉</button>
+                    <button class="emoji-btn">📚</button>
+                    <button class="emoji-btn">✏️</button>
+                    <button class="emoji-btn">📝</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal-overlay" id="modal-overlay" style="display: none;">
+        <div class="modal">
+            <h4 id="modal-title"></h4>
+            <p id="modal-message"></p>
+            <div class="modal-actions">
+                <button id="modal-confirm" class="btn btn-primary">OK</button>
+                <button id="modal-cancel" class="btn btn-secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="audio.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
