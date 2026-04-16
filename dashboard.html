@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьный мессенджер - Главная</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 НеТелеграм</h2>
+                <button class="theme-toggle" id="theme-toggle" title="Сменить тему">
+                    🌙
+                </button>
+            </div>
+
+            <div class="user-profile">
+                <div class="avatar">
+                    <span id="user-avatar">👤</span>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" id="user-name">Пользователь</span>
+                    <span class="user-role" id="user-role">Ученик</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="general-chat">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-text">Общий чат</span>
+                </button>
+                <button class="nav-item" data-section="personal-messages">
+                    <span class="nav-icon">✉️</span>
+                    <span class="nav-text">Личные сообщения</span>
+                </button>
+                <button class="nav-item" data-section="files">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-text">Файлы/материалы</span>
+                </button>
+                <button class="nav-item" data-section="schedule">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-text">Расписание/объявления</span>
+                </button>
+                
+                <!-- Admin-only section -->
+                <div class="admin-section" id="admin-section" style="display: none;">
+                    <div class="nav-divider">Администрирование</div>
+                    <button class="nav-item" data-section="admin-panel">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">Управление</span>
+                    </button>
+                    <button class="nav-item" data-section="stats">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Статистика</span>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="nav-item logout-btn" id="logout-btn">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-text">Выйти</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Mobile Header -->
+        <header class="mobile-header" id="mobile-header">
+            <button class="menu-toggle" id="menu-toggle">☰</button>
+            <h1>НеТелеграм</h1>
+            <button class="theme-toggle" id="theme-toggle-mobile" title="Сменить тему">🌙</button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- General Chat Section -->
+            <section id="general-chat" class="content-section active">
+                <div class="section-header">
+                    <h2>💬 Общий чат</h2>
+                    <span class="section-subtitle">Все ученики и учитель</span>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-search">
+                        <input type="text" id="chat-search" placeholder="Поиск по сообщениям...">
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Введите сообщение..." maxlength="500">
+                        <button class="btn btn-primary" id="send-message-btn">Отправить</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personal Messages Section -->
+            <section id="personal-messages" class="content-section">
+                <div class="section-header">
+                    <h2>✉️ Личные сообщения</h2>
+                    <span class="section-subtitle">Частные беседы</span>
+                </div>
+                <div class="messages-container">
+                    <div class="users-list-panel">
+                        <h3>Список пользователей</h3>
+                        <div class="users-search">
+                            <input type="text" id="user-search" placeholder="Поиск...">
+                        </div>
+                        <div class="users-list" id="users-list">
+                            <!-- Users will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="chat-container">
+                        <div class="chat-header" id="personal-chat-header" style="display: none;">
+                            <span id="chat-with-name"></span>
+                        </div>
+                        <div class="chat-messages" id="personal-messages">
+                            <div class="placeholder-content">
+                                <div class="placeholder-icon">✉️</div>
+                                <h3>Выберите пользователя</h3>
+                                <p>Выберите пользователя из списка слева, чтобы начать диалог.</p>
+                            </div>
+                        </div>
+                        <div class="chat-input-container" id="personal-input-container" style="display: none;">
+                            <input type="text" id="personal-chat-input" placeholder="Введите сообщение..." maxlength="500">
+                            <button class="btn btn-primary" id="send-personal-message-btn">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Files Section -->
+            <section id="files" class="content-section">
+                <div class="section-header">
+                    <h2>📁 Файлы и материалы</h2>
+                    <span class="section-subtitle">Учебные материалы от учителя</span>
+                </div>
+                <div class="files-container">
+                    <!-- Admin upload section -->
+                    <div class="admin-upload-section" id="admin-upload-section" style="display: none;">
+                        <h3>Загрузить файл</h3>
+                        <form id="upload-form" class="upload-form">
+                            <div class="form-group">
+                                <label for="file-name">Название файла</label>
+                                <input type="text" id="file-name" placeholder="Например: Домашнее задание по математике" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="file-url">Ссылка на файл</label>
+                                <input type="url" id="file-url" placeholder="https://..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="file-description">Описание</label>
+                                <textarea id="file-description" placeholder="Краткое описание файла"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Загрузить</button>
+                        </form>
+                    </div>
+                    <div class="files-list" id="files-list">
+                        <!-- Files will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule Section -->
+            <section id="schedule" class="content-section">
+                <div class="section-header">
+                    <h2>📅 Расписание и объявления</h2>
+                    <span class="section-subtitle">Важная информация</span>
+                </div>
+                <div class="schedule-container">
+                    <!-- Admin create announcement section -->
+                    <div class="admin-announcement-section" id="admin-announcement-section" style="display: none;">
+                        <h3>Создать объявление</h3>
+                        <form id="announcement-form" class="announcement-form">
+                            <div class="form-group">
+                                <label for="announcement-title">Заголовок</label>
+                                <input type="text" id="announcement-title" placeholder="Заголовок объявления" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="announcement-text">Текст объявления</label>
+                                <textarea id="announcement-text" placeholder="Текст объявления" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="announcement-date">Дата</label>
+                                <input type="date" id="announcement-date" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Опубликовать</button>
+                        </form>
+                    </div>
+                    <div class="announcements-list" id="announcements-list">
+                        <!-- Announcements will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Panel Section (Admin only) -->
+            <section id="admin-panel" class="content-section">
+                <div class="section-header">
+                    <h2>⚙️ Управление пользователями</h2>
+                    <span class="section-subtitle">Админ-панель</span>
+                </div>
+                <div class="admin-redirect">
+                    <p>Перейти в расширенную админ-панель:</p>
+                    <a href="admin.html" class="btn btn-primary">Открыть админ-панель →</a>
+                </div>
+            </section>
+
+            <!-- Statistics Section (Admin only) -->
+            <section id="stats" class="content-section">
+                <div class="section-header">
+                    <h2>📊 Статистика сообщений</h2>
+                    <span class="section-subtitle">Активность пользователей</span>
+                </div>
+                <div class="stats-container">
+                    <div class="stats-summary">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-messages">0</div>
+                            <div class="stat-label">Всего сообщений</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-users">0</div>
+                            <div class="stat-label">Пользователей</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-files">0</div>
+                            <div class="stat-label">Файлов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-announcements">0</div>
+                            <div class="stat-label">Объявлений</div>
+                        </div>
+                    </div>
+                    <div class="stats-actions">
+                        <button class="btn btn-primary" id="export-chat-btn">Экспорт чата в JSON</button>
+                    </div>
+                    <div class="stats-users-list">
+                        <h3>Активность по пользователям</h3>
+                        <div class="stats-table-container">
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Пользователь</th>
+                                        <th>Роль</th>
+                                        <th>Сообщений</th>
+                                        <th>Личных сообщений</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stats-users-tbody">
+                                    <!-- Stats will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
