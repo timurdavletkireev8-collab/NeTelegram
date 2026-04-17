@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeTelegram Test</title>
+</head>
+<body>
+    <h1>NeTelegram Test</h1>
+    <button onclick="testAll()">Запустить все тесты</button>
+    <div id="results"></div>
+
+    <script src="database.js"></script>
+    <script>
+        function testAll() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Результаты тестов:</h2>';
+            
+            try {
+                // Test 1: Database initialization
+                log('1. Инициализация базы данных...');
+                if (NeTelegramDB && NeTelegramDB.init) {
+                    log('✅ База данных работает');
+                } else {
+                    log('❌ База данных не работает');
+                }
+                
+                // Test 2: Get users
+                log('2. Получение пользователей...');
+                const users = NeTelegramDB.getUsers();
+                log(`✅ Найдено пользователей: ${users.length}`);
+                
+                // Test 3: Check admin user
+                log('3. Проверка админа...');
+                const admin = users.find(u => u.nickname === 'tima');
+                if (admin) {
+                    log('✅ Админ найден');
+                } else {
+                    log('❌ Админ не найден');
+                }
+                
+                // Test 4: Login as admin
+                log('4. Вход как админ...');
+                const loginResult = NeTelegramDB.loginUser('tima', 'timur1212');
+                if (loginResult.success) {
+                    log('✅ Вход успешен');
+                } else {
+                    log('❌ Вход не удался: ' + loginResult.error);
+                }
+                
+                // Test 5: Get session
+                log('5. Проверка сессии...');
+                const session = NeTelegramDB.getSession();
+                if (session) {
+                    log('✅ Сессия активна');
+                } else {
+                    log('❌ Сессия не активна');
+                }
+                
+                // Test 6: Get chats
+                log('6. Получение чатов...');
+                const chats = NeTelegramDB.getChats();
+                log(`✅ Найдено чатов: ${chats.length}`);
+                
+                // Test 7: Check group chat
+                log('7. Проверка группового чата...');
+                const groupChat = chats.find(c => c.id === 'group_8a');
+                if (groupChat) {
+                    log('✅ Групповой чат "БЕСЕДА 8А" существует');
+                } else {
+                    log('❌ Групповой чат не найден');
+                }
+                
+                // Test 8: Send message
+                log('8. Отправка сообщения...');
+                if (groupChat && session) {
+                    const msgResult = NeTelegramDB.sendMessage('group_8a', session.userId, 'Тестовое сообщение', 'text');
+                    if (msgResult.success) {
+                        log('✅ Сообщение отправлено');
+                    } else {
+                        log('❌ Сообщение не отправлено: ' + msgResult.error);
+                    }
+                } else {
+                    log('❌ Нельзя отправить сообщение (нет чата или сессии)');
+                }
+                
+                // Test 9: Get messages
+                log('9. Получение сообщений...');
+                const messages = NeTelegramDB.getChatMessages('group_8a');
+                log(`✅ Найдено сообщений: ${messages.length}`);
+                
+                // Test 10: Whitelist
+                log('10. Проверка whitelist...');
+                const allowedPhones = NeTelegramDB.getAllowedPhones();
+                log(`✅ В whitelist: ${allowedPhones.length} номеров`);
+                
+                log('<br><b>Все тесты завершены!</b>');
+                
+            } catch (error) {
+                log('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        function log(message) {
+            const results = document.getElementById('results');
+            results.innerHTML += '<p>' + message + '</p>';
+        }
+    </script>
+</body>
+</html>
